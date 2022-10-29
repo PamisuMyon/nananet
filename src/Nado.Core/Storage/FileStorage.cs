@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Nado.Core.Models;
 using Nado.Core.Utils;
 
@@ -6,27 +7,24 @@ namespace Nado.Core.Storage;
 public class FileStorage : IStorage
 {
 
-    protected const string OptionsPath = "./storage/options.json";
-    protected const string ConfigPath = "./storage/config.json";
-    protected const string BlockListPath = "./storage/block-list.json";
-    
+    protected const string ConfigPath = "config.json";
+    protected const string BlockListPath = "block-list.json";
+
     public Task Init()
     {
         return Task.CompletedTask;
     }
 
-    public async Task<DodoOptions?> GetApiOptions()
+    public Task<AppSettings?> GetAppSettings()
     {
-        var option = await FileUtil.ReadJson<DodoOptions>(OptionsPath);
-        if (option == null)
-        {
-            Logger.L.Error("No available options.json file found.");
-            return null;
-        }
-        return null;
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("app_settings.json", false)
+            .Build();
+        var options = config.Get<AppSettings>();
+        return Task.FromResult(options)!;
     }
 
-    public async Task<BotConfig> RefreshConfig()
+    public async Task<BotConfig> RefreshBotConfig()
     {
         var config = await FileUtil.ReadJson<BotConfig>(ConfigPath);
         if (config == null)

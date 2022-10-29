@@ -14,14 +14,14 @@ public enum LogLevel
 
 public class Logger
 {
-    private static Logger _instance = new Logger();
+    protected static Logger s_instance = new Logger();
     public static Logger L
     {
-        get => _instance;
-        set => _instance = value;
+        get => s_instance;
+        set => s_instance = value;
     }
 
-    private LogLevel _logLevel = LogLevel.Error;
+    protected LogLevel _logLevel = LogLevel.Error;
     public LogLevel LogLevel
     {
         get => _logLevel;
@@ -31,7 +31,7 @@ public class Logger
     protected StringBuilder Stamp(LogLevel logLevel = LogLevel.Disabled)
     {
         var sb = new StringBuilder();
-        sb.Append(DateTime.Now.ToString("[yy-MM-dd HH:mm:ss"));
+        sb.Append(DateTime.Now.ToString("[yy-MM-dd HH:mm:ss]"));
         sb.Append($"[{logLevel.ToString()}]");
         return sb;
     }

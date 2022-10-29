@@ -1,6 +1,6 @@
 ﻿namespace Nado.Core.Models;
 
-public class DodoOptions
+public class AppSettings
 {
     /// <summary>
     /// 接口地址

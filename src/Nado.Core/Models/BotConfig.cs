@@ -12,12 +12,12 @@ public record BotConfig
         public string Name { get; set; }
     }
 
-    private static BotConfig? _default;
+    private static BotConfig? s_default;
     public static BotConfig Default
     {
         get
         {
-            return _default ??= new BotConfig
+            return s_default ??= new BotConfig
             {
                 ReplyDm = true,
                 ChannelConfigs = new Dictionary<string, ChannelConfig>()

@@ -6,9 +6,9 @@ public interface IStorage
 {
     public Task Init();
 
-    public Task<DodoOptions?> GetApiOptions();
+    public Task<AppSettings?> GetAppSettings();
 
-    public Task<BotConfig> RefreshConfig();
+    public Task<BotConfig> RefreshBotConfig();
     
     public BotConfig Config { get; set; }
     
