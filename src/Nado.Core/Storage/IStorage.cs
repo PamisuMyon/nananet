@@ -4,13 +4,13 @@ namespace Nado.Core.Storage;
 
 public interface IStorage
 {
-    public void Init();
+    public Task Init();
 
-    public Task<DodoOptions> GetApiOptions();
+    public Task<DodoOptions?> GetApiOptions();
 
     public Task<BotConfig> RefreshConfig();
     
-    public BotConfig Config { get; protected set; }
+    public BotConfig Config { get; set; }
     
     
 }
