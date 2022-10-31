@@ -1,24 +1,51 @@
-﻿using Nado.Core.Models;
+﻿using Microsoft.Extensions.Configuration;
+using Nado.App.Nana.Models;
+using Nado.Core.Models;
 using Nado.Core.Storage;
+using Nado.Core.Utils;
 
 namespace Nado.App.Nana.Storage;
 
 public class MongoStorage : IStorage
 {
-    public Task Init()
+
+    protected MongoAppSettings _settings;
+    
+    public async Task Init()
     {
-        throw new NotImplementedException();
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("app_settings.json")
+            .Build();
+        _settings = config.Get<MongoAppSettings>();
+        await DbUtil.Connect(_settings.MongoDbUri, _settings.MongoDbName);
     }
 
-    public Task<AppSettings?> GetAppSettings()
+    public async Task<AppSettings?> GetAppSettings()
     {
-        throw new NotImplementedException();
+        var appSettings = await MiscConfig.FindByName<AppSettings>("dodoAppSettings");
+        if (appSettings == null)
+        {
+            Logger.L.Error("No dodoAppSettings found!");
+            return default;
+        }
+        _settings.Token = appSettings.Token;
+        _settings.ClientId = appSettings.ClientId;
+        return _settings;
     }
 
-    public Task<BotConfig> RefreshBotConfig()
+    public async Task<BotConfig> RefreshBotConfig()
     {
-        throw new NotImplementedException();
+        var config = await MiscConfig.FindByName<BotConfig>("dodoBotConfig");
+        if (config == null)
+        {
+            Logger.L.Warn("No dodoBotConfig found, using default.");
+            config = BotConfig.Default;
+            await MiscConfig.Save("botConfig", config);
+        }
+        _config = config;
+        return config;
     }
 
-    public BotConfig Config { get; set; }
+    protected BotConfig _config;
+    public BotConfig Config => _config;
 }

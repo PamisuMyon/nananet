@@ -1,6 +1,7 @@
 using DoDo.Open.Sdk.Models;
 using DoDo.Open.Sdk.Models.Events;
 using DoDo.Open.Sdk.Services;
+using Nado.Core.Models;
 using Nado.Core.Utils;
 
 namespace Nado.Core;
@@ -10,7 +11,9 @@ public class NadoEventProcessService : EventProcessService
 
     protected OpenApiService _openApiService;
     protected OpenApiOptions _openApiOptions;
-    
+
+    public event Action<Message> OnMessage;
+
     public NadoEventProcessService(OpenApiService openApiService)
     {
         _openApiService = openApiService;
@@ -45,13 +48,21 @@ public class NadoEventProcessService : EventProcessService
     public override void PersonalMessageEvent<T>(EventSubjectOutput<EventSubjectDataBusiness<EventBodyPersonalMessage<T>>> input)
     {
         Logger.L.Debug("PersonalMessageEvent");
-        Logger.L.Debug(input);
+        var message = Message.FromPersonalMessageEvent(input);
+        if (message != null)
+        {
+            OnMessage.Invoke(message);
+        }
     }
 
     public override void ChannelMessageEvent<T>(EventSubjectOutput<EventSubjectDataBusiness<EventBodyChannelMessage<T>>> input)
     {
         Logger.L.Debug("ChannelMessageEvent");
-        Logger.L.Debug(input);
+        var message = Message.FromChannelMessageEvent(input);
+        if (message != null)
+        {
+            OnMessage.Invoke(message);
+        }
     }
     
 }

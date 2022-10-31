@@ -30,15 +30,17 @@ public class FileStorage : IStorage
         if (config == null)
         {
             Logger.L.Info("Failed to read config file, using default config");
+            _config = BotConfig.Default;
         }
         else
         {
             var clone = BotConfig.Default with { };
-            Config = clone.MergeWith(config);
+            _config = clone.MergeWith(config);
         }
-        return Config;
+        return _config;
     }
 
-    public BotConfig Config { get; set; }
+    protected BotConfig _config;
+    public BotConfig Config { get; }
     
 }

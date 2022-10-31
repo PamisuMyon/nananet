@@ -1,4 +1,5 @@
 ﻿{
   "BaseApi": "https://botopen.imdodo.com",
-  "MongoDbUri": "mongodb://localhost/nana"
+  "MongoDbUri": "mongodb://localhost/nana",
+  "MongoDbName": "nana"
 }

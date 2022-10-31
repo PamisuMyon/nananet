@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+      <PackageReference Include="MongoDB.Entities" Version="21.0.1" />
     </ItemGroup>
     
 </Project>

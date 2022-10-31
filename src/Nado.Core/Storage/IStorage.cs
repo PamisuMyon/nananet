@@ -10,7 +10,6 @@ public interface IStorage
 
     public Task<BotConfig> RefreshBotConfig();
     
-    public BotConfig Config { get; set; }
-    
+    public BotConfig Config { get; }
     
 }
