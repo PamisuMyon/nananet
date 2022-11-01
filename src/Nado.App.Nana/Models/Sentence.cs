@@ -10,6 +10,10 @@ public class Sentence : Entity
     
     public string[] Contents { get; set; }
 
+
+    protected static EntityCache<Sentence> _cache = new ();
+    public static EntityCache<Sentence> Cache => _cache;
+
     public static async Task<string[]?> FindByName(string name)
     {
         var doc = await DB.Find<Sentence>()
@@ -18,19 +22,19 @@ public class Sentence : Entity
         return doc?.Contents;
     }
     
-    public static async Task<string[]> Get(string name)
+    public static string[] Get(string name)
     {
-        var contents = await FindByName(name);
-        if (contents != null)
-            return contents;
+        foreach (var it in _cache.Value)
+        {
+            if (it.Name == name)
+                return it.Contents;
+        }
         return new [] { "" };
     }
 
-    public static async Task<string> GetOne(string name)
+    public static string GetOne(string name)
     {
-        var contents = await FindByName(name);
-        if (contents != null)
-            return contents.RandomElem();
-        return "";
+        var contents = Get(name);
+        return contents.RandomElem();
     }
 }

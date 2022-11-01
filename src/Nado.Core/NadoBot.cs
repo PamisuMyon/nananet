@@ -61,8 +61,8 @@ public class NadoBot
         _mentionRegex = new Regex($"<@!{_me.DodoId}>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         Logger.L.Debug($"At Regex: {_mentionRegex}");
 
-        await Storage.RefreshBotConfig();
-
+        await Refresh();
+        
         _eventProcessService = new NadoEventProcessService(_openApiService);
         _eventProcessService.OnMessage += OnMessage;
         var openEventService = new OpenEventService(_openApiService, _eventProcessService, new OpenEventOptions
@@ -73,6 +73,11 @@ public class NadoBot
         await openEventService.ReceiveAsync();
     }
 
+    protected virtual async Task Refresh()
+    {
+        await Storage.RefreshBotConfig();
+    }
+    
     protected virtual async void OnMessage(Message input)
     {
         if (input.MessageType is not
@@ -113,7 +118,10 @@ public class NadoBot
         CommandPreTest(input);
         try
         {
-            var testInfo = await _pickFunc(_commands, input);
+            var testInfo = await _pickFunc(_commands, input, new CommandTestOptions
+            {
+                IsCommand = isChannelCommand
+            });
             if (testInfo == null) return;
 
             var command = _commands.GetElemSafe(testInfo.Value.CommandIndex);
@@ -151,6 +159,7 @@ public class NadoBot
         {
             text.Content = _mentionRegex.Replace(text.Content, "");
             text.Content = _commandRegex.Replace(text.Content, "");
+            text.Content = text.Content.Trim();
         }
     }
 

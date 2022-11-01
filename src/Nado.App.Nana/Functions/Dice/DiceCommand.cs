@@ -15,7 +15,7 @@ public class DiceCommand : Command
     protected Regex _regexLax = new ("((\\d+) ?\\+ ?)?((\\d*) )?r?(\\d*)d(\\d+)( ?\\+ ?(\\d+))?=?", RegexOptions.IgnoreCase);
     
     
-    public override Task<CommandTestInfo> Test(Message input)
+    public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
         if (input is TextMessage text)
         {
@@ -44,7 +44,7 @@ public class DiceCommand : Command
             };
             options.Add(option);
         }
-        var reply = Dicer.Rolls(options, await Sentence.Get("commandError"), await Sentence.Get("diceTooMany"));
+        var reply = Dicer.Rolls(options, Sentence.Get("commandError"), Sentence.Get("diceTooMany"));
         if (!msg.IsPersonal && reply.Contains('\n')) {
             reply = '\n' + reply;
         }

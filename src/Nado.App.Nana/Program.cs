@@ -1,4 +1,5 @@
-﻿using Nado.App.Nana.Commands.Dice;
+﻿using Nado.App.Nana;
+using Nado.App.Nana.Commands.Dice;
 using Nado.App.Nana.Storage;
 using Nado.Core;
 using Nado.Core.Commands;
@@ -15,5 +16,5 @@ var options = new InitOptions
         new DiceCommand(),
     }
 };
-var bot = new NadoBot(options);
+var bot = new NanaBot(options);
 await bot.Launch();
