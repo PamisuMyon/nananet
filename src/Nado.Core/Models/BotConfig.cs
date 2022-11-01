@@ -14,7 +14,7 @@ public record BotConfig
 
     public bool HasChannel(string channelId)
     {
-        return Channels.ContainsKey(channelId);
+        return Channels.ContainsKey("all") || Channels.ContainsKey(channelId);
     }
 
     public ChannelConfig? GetChannel(string channelId)

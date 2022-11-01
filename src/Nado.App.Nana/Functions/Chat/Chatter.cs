@@ -13,8 +13,13 @@ public class Chatter
         public string Priority;
     }
 
-    protected static Regex _puncRegex = new ("[\\ \\~\\`\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\-\\+\\=\\|\\\\[\\]\\{\\}\\;\\:\"\'\\,\\<\\.\\>\\/\\?《》【】「」￥！。，”“、…]", RegexOptions.Multiline);
-    protected static Regex _emojiRegex = new ("(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f])|(\ud83d[\ude80-\udeff])", RegexOptions.Multiline);
+    protected static Regex _puncRegex =
+        new(
+            "[\\ \\~\\`\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\-\\+\\=\\|\\\\[\\]\\{\\}\\;\\:\"\'\\,\\<\\.\\>\\/\\?《》【】「」￥！。，”“、…]",
+            RegexOptions.Multiline);
+
+    protected static Regex _emojiRegex = new("(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f])|(\ud83d[\ude80-\udeff])",
+        RegexOptions.Multiline);
 
     public static string Wash(string content)
     {
@@ -24,6 +29,7 @@ public class Chatter
         {
             return str;
         }
+
         return content;
     }
 
@@ -51,6 +57,7 @@ public class Chatter
                         break;
                     }
                 }
+
                 if (found)
                 {
                     // 优先级最高，立即返回结果
@@ -82,6 +89,7 @@ public class Chatter
                         break;
                     }
                 }
+
                 if (found)
                 {
                     return new ReplyResult
@@ -92,14 +100,36 @@ public class Chatter
                 }
             }
         }
+
         return null;
     }
 
-    public static async void RequestNanaChat(string content)
+    public static async Task<NanaChatResult?> RequestNanaChat(string content)
     {
         var url = $"http://127.0.0.1:7700/api/v1/chat?msg={content}";
-        var client = new RestClient("http://127.0.0.1:7700/api/v1");
-        var request = new RestRequest($"chat?msg={content}");
-        
+        var client = new RestClient(url)
+        {
+            Timeout = 1200,
+            ThrowOnAnyError = true
+        };
+        var request = new RestRequest();
+        try
+        {
+            var result = await client.GetAsync<NanaChatResult>(request);
+            return result;
+        }
+        catch (Exception e)
+        {
+            Logger.L.Error("エラー発生: GetNanaChat");
+            Logger.L.Error(e.Message);
+        }
+
+        return null;
+    }
+
+    public struct NanaChatResult
+    {
+        public string reply;
+        public float confidence;
     }
 }

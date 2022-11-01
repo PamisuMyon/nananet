@@ -2,6 +2,7 @@ using MongoDB.Entities;
 
 namespace Nado.App.Nana.Models;
 
+[Collection("conversations")]
 public class Conversation : Entity
 {
     public string Type { get; set; }

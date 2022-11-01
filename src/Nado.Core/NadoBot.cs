@@ -58,7 +58,7 @@ public class NadoBot
             Logger.L.Error("Get bot info failed.");
             return;
         }
-        _mentionRegex = new Regex($"<@!{_me.DodoId}>", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        _mentionRegex = new Regex($"(<@!{_me.DodoId}>|[@＠]{_me.NickName})", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         Logger.L.Debug($"At Regex: {_mentionRegex}");
 
         await Refresh();
