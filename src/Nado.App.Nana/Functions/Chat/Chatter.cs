@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Nado.App.Nana.Models;
 using Nado.Core.Utils;
@@ -109,14 +110,14 @@ public class Chatter
         var url = $"http://127.0.0.1:7700/api/v1/chat?msg={content}";
         var client = new RestClient(url)
         {
-            Timeout = 1200,
+            Timeout = 2000,
             ThrowOnAnyError = true
         };
         var request = new RestRequest();
         try
         {
-            var result = await client.GetAsync<NanaChatResult>(request);
-            return result;
+            var response = await client.ExecuteGetAsync(request);
+            return JsonUtil.FromJson<NanaChatResult>(response.Content);
         }
         catch (Exception e)
         {

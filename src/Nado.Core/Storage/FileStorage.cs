@@ -43,4 +43,16 @@ public class FileStorage : IStorage
     protected BotConfig _config;
     public BotConfig Config { get; }
     
+    public Task<List<User>> RefreshBlockList()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateBlockList(List<User> users)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<User> BlockList { get; }
+    
 }

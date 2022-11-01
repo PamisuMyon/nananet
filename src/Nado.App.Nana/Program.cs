@@ -2,6 +2,7 @@
 using Nado.App.Nana.Commands.Dice;
 using Nado.App.Nana.Functions.Chat;
 using Nado.App.Nana.Functions.Gacha;
+using Nado.App.Nana.Functions.Help;
 using Nado.App.Nana.Functions.Picture;
 using Nado.App.Nana.Functions.Recruit;
 using Nado.App.Nana.Storage;
@@ -20,6 +21,7 @@ var options = new InitOptions
         new GachaCommand(),
         new RecruitCommand(),
         new PictureCommand(),
+        new HelpCommand(),
         new ChatCommand(),
     }
 };

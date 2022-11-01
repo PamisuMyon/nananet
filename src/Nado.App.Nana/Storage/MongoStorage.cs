@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MongoDB.Entities;
 using Nado.App.Nana.Models;
 using Nado.Core.Models;
 using Nado.Core.Storage;
@@ -48,4 +49,40 @@ public class MongoStorage : IStorage
 
     protected BotConfig _config;
     public BotConfig Config => _config;
+    public async Task<List<User>> RefreshBlockList()
+    {
+        _blockList.Clear();
+        var list = await DB.Find<BlockedUser>().ExecuteAsync();
+        if (list != null)
+        {
+            foreach (var it in list)
+                _blockList.Add(it);
+        }
+        return _blockList;
+    }
+
+    public async Task UpdateBlockList(List<User> users)
+    {
+        var bulk = DB.Update<BlockedUser>();
+        foreach (var user in users)
+        {
+            bulk.Match(u => u.UserId == user.UserId)
+                .ModifyWith(new BlockedUser
+                {
+                    UserId = user.UserId,
+                    Name = user.Name,
+                    UserName = user.UserName
+                })
+                .Option(o =>
+                {
+                    o.IsUpsert = true;
+                })
+                .AddToQueue();
+        }
+
+        await bulk.ExecuteAsync();
+    }
+
+    protected List<User> _blockList = new ();
+    public List<User> BlockList => _blockList;
 }

@@ -22,12 +22,18 @@ public class NadoBot
     protected OpenApiService _openApiService;
     public OpenApiService ApiService => _openApiService;
     protected NadoEventProcessService _eventProcessService;
+    
     protected List<Command> _commands;
+    protected Command.CommandPickFunc _pickFunc = Command.PickO1;
+    
     protected GetBotInfoOutput _me;
-    protected GetBotInfoOutput Me => _me;
+    public GetBotInfoOutput Me => _me;
+    
     protected Regex _mentionRegex;
     protected Regex _commandRegex = new Regex("^[\\.。]", RegexOptions.Multiline);
-    protected Command.CommandPickFunc _pickFunc = Command.PickO1;
+
+    protected Defender _defender; 
+        
 
     public NadoBot(InitOptions? options = default)
     {
@@ -76,6 +82,8 @@ public class NadoBot
     protected virtual async Task Refresh()
     {
         await Storage.RefreshBotConfig();
+        await Storage.RefreshBlockList();
+        _defender = new Defender(_storage, Config.Defender.Interval, Config.Defender.Threshold);
     }
     
     protected virtual async void OnMessage(Message input)
@@ -83,7 +91,11 @@ public class NadoBot
         if (input.MessageType is not
             (Message.Type.Text or Message.Type.Picture)) return;
 
-        // TODO Defender
+        if (_defender.IsBlocked(input.DodoId))
+        {
+            Logger.L.Debug($"Message form blocked user: {input.DodoId}");
+            return;
+        }
 
         var isTriggered = false;
         var isChannelCommand = false;
@@ -126,10 +138,15 @@ public class NadoBot
 
             var command = _commands.GetElemSafe(testInfo.Value.CommandIndex);
             if (command == null) return;
+            Logger.L.Debug($"Command executing: {command.Name}");
             var result = await command.Execute(this, input, testInfo.Value);
             if (result.Success)
             {
-                // TODO Defender
+                _defender.Record(new User
+                {
+                    UserId = input.DodoId,
+                    Name = input.Personal.NickName
+                });
             }
             else
             {
@@ -229,6 +246,8 @@ public class NadoBot
         {
             Url = url,
             IsOriginal = 1,
+            Height = 128,
+            Width = 128     // TODO hard-code
         };
         return await SendMessage(targetId, body, isPersonal, referenceId);
     }

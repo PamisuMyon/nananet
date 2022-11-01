@@ -38,7 +38,7 @@ public class ChatCommand : Command
         var convReply = Chatter.GetConversationReply(content);
         if (convReply != null && convReply.Value.Priority == "2")
         {
-            await DoReply(bot, input, content);
+            await DoReply(bot, input, convReply.Value.Content);
             return Executed;
         }
          
@@ -75,7 +75,8 @@ public class ChatCommand : Command
         var m = _contentRegex.Match(reply);
         if (m.Success)
         {
-            await bot.ReplyPictureUrlMessage(input, m.Groups[2].Value);
+            await bot.ReplyPictureUrlMessage(input, m.Groups[1].Value);
+            return;
         }
 
         await bot.ReplyTextMessage(input, reply);

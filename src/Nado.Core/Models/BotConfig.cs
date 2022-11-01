@@ -12,6 +12,14 @@ public record BotConfig
         public string? Name { get; set; }
     }
 
+    public DefenderConfig Defender { get; set; }
+    
+    public class DefenderConfig
+    {
+        public int Interval { get; set; }
+        public int Threshold { get; set; }
+    }
+
     public bool HasChannel(string channelId)
     {
         return Channels.ContainsKey("all") || Channels.ContainsKey(channelId);
@@ -31,7 +39,12 @@ public record BotConfig
             return s_default ??= new BotConfig
             {
                 ReplyDm = true,
-                Channels = new Dictionary<string, ChannelConfig>()
+                Channels = new Dictionary<string, ChannelConfig>(),
+                Defender = new DefenderConfig
+                {
+                    Interval = 1200,
+                    Threshold = 12,
+                }
             };
         }
     }

@@ -11,5 +11,11 @@ public interface IStorage
     public Task<BotConfig> RefreshBotConfig();
     
     public BotConfig Config { get; }
+
+    public Task<List<User>> RefreshBlockList();
+
+    public Task UpdateBlockList(List<User> users);
     
+    public List<User> BlockList { get; }
+
 }
