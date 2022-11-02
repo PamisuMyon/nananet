@@ -18,6 +18,7 @@ public class NadoBot
     protected IStorage _storage;
     public IStorage Storage => _storage;
     public BotConfig Config => _storage.Config;
+    protected AppSettings _appSettings;
 
     protected OpenApiService _openApiService;
     public OpenApiService ApiService => _openApiService;
@@ -51,6 +52,7 @@ public class NadoBot
             Logger.L.Error("Options not available, launch failed.");
             return;
         }
+        _appSettings = appSettings;
 
         _openApiService = new OpenApiService(new OpenApiOptions
         {
@@ -64,9 +66,11 @@ public class NadoBot
             Logger.L.Error("Get bot info failed.");
             return;
         }
-        _mentionRegex = new Regex($"(<@!{_me.DodoId}>|[@＠]{_me.NickName})", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-        Logger.L.Debug($"At Regex: {_mentionRegex}");
-
+        // _me.DodoSourceId现在(v2)与bot创建者相同，而非bot的dodo id
+        _mentionRegex = new Regex($"(<@!{appSettings.DodoId}>|[@＠]{_me.NickName})", 
+            RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        Logger.L.Debug($"Mention Regex: {_mentionRegex}");
+        
         await Refresh();
         
         _eventProcessService = new NadoEventProcessService(_openApiService);
@@ -103,14 +107,14 @@ public class NadoBot
 
         if (input.IsPersonal)
         {
-            if (input.DodoId == _me.DodoId) return;
+            // if (input.DodoId == _appSettings.DodoId) return;
             isTriggered = true;
             Logger.L.Debug($"Personal message received: {input}");
         }
         else
         {
             if (!Config.HasChannel(input.ChannelId)) return;
-            if (input.DodoId == _me.DodoId) return;
+            // if (input.DodoId == _appSettings.DodoId) return;
             Logger.L.Debug($"Channel message received: {input}");
 
             if (isReplyMe)
@@ -165,7 +169,7 @@ public class NadoBot
     {
         if (!input.IsPersonal && input.Reference != null)
         {
-            return input.Reference.DodoId == _me.DodoId;
+            return input.Reference.DodoSourceId == _appSettings.DodoId;
         }
         return false;
     }
@@ -186,7 +190,7 @@ public class NadoBot
         {
             var result = await _openApiService.SetPersonalMessageSendAsync(new SetPersonalMessageSendInput<T>
             {
-                DodoId = targetId,
+                DodoSourceId = targetId,
                 MessageBody = messageBody,
             });
             return result?.MessageId;
@@ -255,6 +259,15 @@ public class NadoBot
     public virtual async Task<string?> ReplyPictureUrlMessage(Message to, string url)
     {
         return await SendPictureUrlMessage(to.IsPersonal ? to.DodoId : to.ChannelId, url, to.IsPersonal, to.MessageId);
+    }
+
+    public async Task<bool> DeleteMessage(string messageId)
+    {
+        var input = new SetChannelMessageWithdrawInput
+        {
+            MessageId = messageId,
+        };
+        return await _openApiService.SetChannelMessageWithdrawAsync(input);
     }
     
 }

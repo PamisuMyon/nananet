@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Nado.App.Nana.Models;
 using Nado.Core.Utils;
@@ -117,7 +116,7 @@ public class Chatter
         try
         {
             var response = await client.ExecuteGetAsync(request);
-            return JsonUtil.FromJson<NanaChatResult>(response.Content);
+            return JsonUtil.FromJson<NanaChatResult>(response.Content!);
         }
         catch (Exception e)
         {

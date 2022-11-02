@@ -20,7 +20,9 @@ var options = new InitOptions
         new DiceCommand(),
         new GachaCommand(),
         new RecruitCommand(),
-        new PictureCommand(),
+        new KittyCommand(),
+        new DogeCommand(),
+        new SetuCommand(),
         new HelpCommand(),
         new ChatCommand(),
     }

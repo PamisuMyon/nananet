@@ -31,6 +31,7 @@ public class MongoStorage : IStorage
         }
         _settings.Token = appSettings.Token;
         _settings.ClientId = appSettings.ClientId;
+        _settings.DodoId = appSettings.DodoId;
         return _settings;
     }
 

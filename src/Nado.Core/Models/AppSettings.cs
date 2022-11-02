@@ -17,4 +17,6 @@ public class AppSettings
     /// </summary>
     public string Token { get; set; }
     
+    public string DodoId { get; set; }
+    
 }

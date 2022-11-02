@@ -86,9 +86,9 @@ public class Message
             message.MessageId = input.Data.EventBody.MessageId;
             message.Reference = input.Data.EventBody.Reference;
             message.MessageType = (Type)input.Data.EventBody.MessageType;
-            message.DodoId = input.Data.EventBody.DodoId;
+            message.DodoId = input.Data.EventBody.DodoSourceId;
             message.ChannelId = input.Data.EventBody.ChannelId;
-            message.IslandId = input.Data.EventBody.IslandId;
+            message.IslandId = input.Data.EventBody.IslandSourceId;
             message.Personal = input.Data.EventBody.Personal;
             message.Member = input.Data.EventBody.Member;
             message.IsPersonal = false;
@@ -115,7 +115,7 @@ public class Message
             message.Timestamp = input.Data.Timestamp;
             message.MessageId = input.Data.EventBody.MessageId;
             message.MessageType = (Type)input.Data.EventBody.MessageType;
-            message.DodoId = input.Data.EventBody.DodoId;
+            message.DodoId = input.Data.EventBody.DodoSourceId;
             message.Personal = input.Data.EventBody.Personal;
             message.IsPersonal = true;
         }

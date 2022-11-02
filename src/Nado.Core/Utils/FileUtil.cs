@@ -14,6 +14,23 @@ public static class FileUtil
         var str = await File.ReadAllTextAsync(path);
         return !string.IsNullOrEmpty(str) ? JsonUtil.FromJson<T>(str) : default;
     }
-    
+
+    public static string PathFromBase(string relativePath)
+    {
+        return Path.Combine(AppContext.BaseDirectory, relativePath);
+    }
+
+    public static bool DeleteUnreliably(string filePath)
+    {
+        try
+        {
+            File.Delete(filePath);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
     
 }

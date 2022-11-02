@@ -47,7 +47,7 @@ public class NadoEventProcessService : EventProcessService
 
     public override void PersonalMessageEvent<T>(EventSubjectOutput<EventSubjectDataBusiness<EventBodyPersonalMessage<T>>> input)
     {
-        Logger.L.Debug("PersonalMessageEvent");
+        Logger.L.Debug("NadoEventProcessService PersonalMessageEvent");
         var message = Message.FromPersonalMessageEvent(input);
         if (message != null)
         {
@@ -57,7 +57,7 @@ public class NadoEventProcessService : EventProcessService
 
     public override void ChannelMessageEvent<T>(EventSubjectOutput<EventSubjectDataBusiness<EventBodyChannelMessage<T>>> input)
     {
-        Logger.L.Debug("ChannelMessageEvent");
+        Logger.L.Debug("NadoEventProcessService ChannelMessageEvent");
         var message = Message.FromChannelMessageEvent(input);
         if (message != null)
         {
