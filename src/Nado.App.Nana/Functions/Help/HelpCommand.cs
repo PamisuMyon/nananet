@@ -10,7 +10,7 @@ public class HelpCommand : Command
 {
     public override string Name => "help";
 
-    protected Regex _regex = new("^(帮助|help)");
+    protected Regex _regex = new("^(帮助|幫助|菜单|menu|help)", RegexOptions.IgnoreCase);
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {

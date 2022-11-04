@@ -9,6 +9,13 @@ using RestSharp;
 
 namespace Nado.App.Nana.Functions.Picture;
 
+public struct PicCommandHints
+{
+    public string DownloadingHint { get; set; }
+    public string DownloadErrorHint { get; set; }
+    public string SendErrorHint { get; set; }
+}
+
 public abstract class SimplePictureCommand : Command
 {
     protected static int _timeout => 8000;
@@ -18,14 +25,7 @@ public abstract class SimplePictureCommand : Command
 
     protected abstract DownloadFunc[] DownloadFuncs { get; }
 
-    protected struct CommandHints
-    {
-        public string DownloadingHint { get; set; }
-        public string DownloadErrorHint { get; set; }
-        public string SendErrorHint { get; set; }
-    }
-
-    protected abstract CommandHints Hints { get; }
+    protected abstract PicCommandHints Hints { get; }
 
     protected Spam _temporarySpam = new Spam(0, 1, 5000);
 
@@ -89,14 +89,14 @@ public class KittyCommand : SimplePictureCommand
 
     protected override Regex[] Regexes => _regexes;
 
-    private CommandHints _hints = new()
+    private PicCommandHints _hints = new()
     {
         DownloadingHint = "正在检索猫猫数据库，请博士耐心等待...",
         DownloadErrorHint = "图片被猫猫吞噬了，请博士稍后再试。",
         SendErrorHint = "图片发送过程中发生致命错误，您的开水壶已被炸毁。"
     };
 
-    protected override CommandHints Hints => _hints;
+    protected override PicCommandHints Hints => _hints;
 
     private DownloadFunc[] _downloadFuncs =
     {
@@ -179,14 +179,14 @@ public class DogeCommand : SimplePictureCommand
 
     protected override Regex[] Regexes => _regexes;
 
-    private CommandHints _hints = new()
+    private PicCommandHints _hints = new()
     {
         DownloadingHint = "正在检索狗狗数据库，请博士耐心等待...",
         DownloadErrorHint = "图片被狗狗吞噬了，请博士稍后再试。",
         SendErrorHint = "图片发送过程中发生致命错误，您的开水壶已被炸毁。"
     };
 
-    protected override CommandHints Hints => _hints;
+    protected override PicCommandHints Hints => _hints;
 
     private DownloadFunc[] _downloadFuncs =
     {

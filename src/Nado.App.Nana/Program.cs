@@ -1,10 +1,10 @@
 ﻿using Nado.App.Nana;
-using Nado.App.Nana.Commands.Dice;
+using Nado.App.Nana.Functions.Dice;
 using Nado.App.Nana.Functions.Chat;
 using Nado.App.Nana.Functions.Gacha;
 using Nado.App.Nana.Functions.Help;
 using Nado.App.Nana.Functions.Picture;
-using Nado.App.Nana.Functions.Recruit;
+using Nado.App.Nana.Functions.Recruit;using Nado.App.Nana.Schedulers;
 using Nado.App.Nana.Storage;
 using Nado.Core.Commands;
 using Nado.Core.Models;
@@ -28,4 +28,5 @@ var options = new InitOptions
     }
 };
 var bot = new NanaBot(options);
+new Alarm(bot).Schedule();
 await bot.Launch();

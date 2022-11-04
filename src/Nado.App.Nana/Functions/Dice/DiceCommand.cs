@@ -5,7 +5,7 @@ using Nado.Core.Commands;
 using Nado.Core.Models;
 using Nado.Core.Utils;
 
-namespace Nado.App.Nana.Commands.Dice;
+namespace Nado.App.Nana.Functions.Dice;
 
 public class DiceCommand : Command
 {

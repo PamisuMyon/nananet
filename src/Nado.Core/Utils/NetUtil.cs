@@ -1,5 +1,4 @@
 ﻿using RestSharp;
-using RestSharp.Extensions;
 
 namespace Nado.Core.Utils;
 
@@ -28,4 +27,15 @@ public class NetUtil
         });
         
     }
+
+    public static async Task<bool> IsUrlAlive(string url, int timeout = 1000)
+    {
+        var client = new RestClient(url)
+        {
+            Timeout = timeout
+        };
+        var response = await client.ExecuteAsync(new RestRequest(Method.OPTIONS));
+        return response.IsSuccessful;
+    }
+    
 }

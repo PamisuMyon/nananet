@@ -15,7 +15,7 @@ public static class JsonUtil
         return JsonConvert.DeserializeObject<T>(json, Settings);
     }
 
-    public static string ToJson(object obj)
+    public static string ToJson(object? obj)
     {
         return JsonConvert.SerializeObject(obj, Settings);
     }

@@ -88,6 +88,10 @@ public class NadoBot
         await Storage.RefreshBotConfig();
         await Storage.RefreshBlockList();
         _defender = new Defender(_storage, Config.Defender.Interval, Config.Defender.Threshold);
+        foreach (var command in _commands)
+        {
+            await command.Init(this);
+        }
     }
     
     protected virtual async void OnMessage(Message input)

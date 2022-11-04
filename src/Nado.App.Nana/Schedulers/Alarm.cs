@@ -1,4 +1,5 @@
-﻿using Nado.Core;
+﻿using Nado.App.Nana.Models.Ak;
+using Nado.Core;
 using Nado.Core.Utils;
 using Quartz;
 using Quartz.Impl;
@@ -23,6 +24,7 @@ public class Alarm
         var job = JobBuilder.Create<BirthdayJob>()
             .WithIdentity("birthday", "group")
             .Build();
+        job.JobDataMap.Add("bot", _bot);
 
         var trigger = TriggerBuilder.Create()
             .WithCronSchedule("22 0 0 * * ?")
@@ -35,10 +37,40 @@ public class Alarm
 
     class BirthdayJob : IJob
     {
-        public Task Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
-            throw new NotImplementedException();
+            if (context.MergedJobDataMap.Get("bot") is not NadoBot bot)
+            {
+                Logger.L.Error("Cannot get bot from context.");
+                return;
+            }
+
+            try
+            {
+                var content = await Handbook.GetBirthdayMessageSimple(DateTime.Now);
+                if (string.IsNullOrEmpty(content))
+                {
+                    Logger.L.Debug("No birthday message for now.");
+                    return;
+                }
+
+                foreach (var it in bot.Config.Channels)
+                {
+                    if (it.Key == "all") continue;
+                    if (it.Value.AlarmBirthday)
+                    {
+                        await bot.SendTextMessage(it.Key, content, false);
+                        Logger.L.Info($"Birthday message sent to {it.Key} : {content}");
+                    }
+
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.L.Error("Birthday Job Error.");
+                Logger.L.Error(e.Message);
+            }
         }
     }
-
 }

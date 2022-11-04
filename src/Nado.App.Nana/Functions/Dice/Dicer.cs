@@ -1,6 +1,6 @@
 using Nado.Core.Utils;
 
-namespace Nado.App.Nana.Commands.Dice;
+namespace Nado.App.Nana.Functions.Dice;
 
 public struct DiceOptions
 {

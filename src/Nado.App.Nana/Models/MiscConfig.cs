@@ -1,6 +1,8 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Entities;
+using Nado.Core.Utils;
+using Newtonsoft.Json.Linq;
 
 namespace Nado.App.Nana.Models;
 
@@ -20,7 +22,7 @@ public class MiscConfig : Entity
         return doc != default ? BsonSerializer.Deserialize<T>(doc.Value) : default;
     }
 
-    public static async Task Save<T>(string name, T value)
+    public static async Task Save(string name, object value)
     {
         var doc = new MiscConfig
         {
