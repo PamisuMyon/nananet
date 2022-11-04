@@ -1,0 +1,4 @@
+﻿{
+  "MongoDbUri": "mongodb://localhost/nana",
+  "MongoDbName": "nana"
+}
