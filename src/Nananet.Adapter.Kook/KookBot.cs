@@ -73,7 +73,7 @@ public class KookBot : IBot
         return Task.CompletedTask;
     }
 
-    public async Task Refresh()
+    public virtual async Task Refresh()
     {
         await Storage.RefreshBotConfig();
         await Storage.RefreshBlockList();
@@ -87,23 +87,120 @@ public class KookBot : IBot
     protected Task OnMessageReceived(SocketMessage input)
     {
         Logger.L.Debug($"OnMessageReceived: {input}");
-        
+        var message = Converter.FromSocketMessage(input);
+        if (message == null) return Task.CompletedTask;
+        Task.Run(async () => await ProcessMessage(message));
         return Task.CompletedTask;
     }
 
+    protected async Task ProcessMessage(Message input)
+    {
+        if (input.Author.IsBot) return;
+        if (_defender.IsBlocked(input.AuthorId))
+        {
+            Logger.L.Debug($"Message form blocked user: {input.AuthorId}");
+            return;
+        }
+
+        var isTriggered = false;
+        var isChannelCommand = false;
+        var isReplyMe = IsReplyMe(input);
+
+        if (input.IsPersonal)
+        {
+            isTriggered = true;
+            Logger.L.Debug($"Personal message received: {input}");
+        }
+        else
+        {
+            if (!Config.HasChannel(input.ChannelId)) return;
+            Logger.L.Debug($"Channel message received: {input}");
+
+            if (isReplyMe)
+            {
+                isTriggered = true;
+            }
+            else if (input is TextMessage text)
+            {
+                if (_mentionRegex.IsMatch(text.Content))
+                    isTriggered = true;
+                else if (_commandRegex.IsMatch(text.Content))
+                    isChannelCommand = true;
+            }
+        }
+
+        if (!isTriggered && !isChannelCommand) return;
+        CommandPreTest(input);
+        try
+        {
+            var testInfo = await _pickFunc(_commands, input, new CommandTestOptions
+            {
+                IsCommand = isChannelCommand
+            });
+            if (testInfo == null) return;
+
+            var command = _commands.GetElemSafe(testInfo.Value.CommandIndex);
+            if (command == null) return;
+            Logger.L.Debug($"Command executing: {command.Name}");
+            var result = await command.Execute(this, input, testInfo.Value);
+            if (result.Success)
+            {
+                _defender.Record(new User
+                {
+                    UserId = input.AuthorId,
+                    NickName = input.Author.NickName
+                });
+            }
+            else
+            {
+                Logger.L.Error($"{command.Name} Failed.");
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.L.Error("Command Error.");
+            Logger.L.Error(e);
+            Logger.L.Error(e.StackTrace);
+        }
+    }
+    
+    public bool IsReplyMe(Message input)
+    {
+        if (!input.IsPersonal && input.Reference != null)
+        {
+            return input.Reference.AuthorId == _appSettings.BotId;
+        }
+        return false;
+    }
+
+    protected virtual void CommandPreTest(Message input)
+    {
+        if (input is TextMessage text)
+        {
+            text.Content = _mentionRegex.Replace(text.Content, "");
+            text.Content = _commandRegex.Replace(text.Content, "");
+            text.Content = text.Content.Trim();
+        }
+    }
+    
     public Task<string?> SendMessage<T>(string targetId, T messageBody, bool isPersonal, string? referenceId = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
+    public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
-        throw new NotImplementedException();
+        var channel = await _client.GetChannelAsync(ulong.Parse(targetId));
+        if (channel is SocketTextChannel textChannel)
+        {
+            await textChannel.SendTextAsync(content, referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+        }
+        return null;
     }
 
     public Task<string?> ReplyTextMessage(Message to, string content)
     {
-        throw new NotImplementedException();
+        return SendTextMessage(to.ChannelId, content, to.IsPersonal, to.MessageId);
     }
 
     public Task<string?> SendPictureFileMessage(string targetId, string filePath, bool isPersonal, string? referenceId = null)

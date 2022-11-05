@@ -10,7 +10,7 @@ public static class Converter
     public static Message? FromSocketMessage(SocketMessage input)
     {
         Message? msg = null;
-        if (input.Type == MessageType.Text)
+        if (input.Type == MessageType.KMarkdown || input.Type == MessageType.Text)
             msg = FromFromTextSocketMessage(input);
         
         if (msg != null)
