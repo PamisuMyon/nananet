@@ -47,7 +47,7 @@ public abstract class SimplePictureCommand : Command
         string? error = null;
         if (filePath != null)
         {
-            var imgMsgId = await bot.ReplyPictureFileMessage(input, filePath);
+            var imgMsgId = await bot.ReplyLocalFileMessage(input, filePath, FileType.Image);
             FileUtil.DeleteUnreliably(filePath);
             if (imgMsgId == null)
                 error = Hints.DownloadErrorHint;
@@ -62,7 +62,7 @@ public abstract class SimplePictureCommand : Command
         await Task.Delay(1000);
         if (hintMsgId != null)
         {
-            var b = await bot.DeleteMessage(hintMsgId);
+            var b = await bot.DeleteMessage(input.ChannelId, hintMsgId);
             Logger.L.Debug($"Delete message: {b}  id {hintMsgId}");
         }
 

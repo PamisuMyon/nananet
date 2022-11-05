@@ -10,7 +10,13 @@ public class HelpCommand : Command
 {
     public override string Name => "help";
 
+    protected string _keyHelp;
     protected Regex _regex = new("^(帮助|幫助|菜单|menu|help)", RegexOptions.IgnoreCase);
+
+    public HelpCommand(string keyHelp = "help")
+    {
+        _keyHelp = keyHelp;
+    }
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
@@ -22,7 +28,7 @@ public class HelpCommand : Command
 
     public override async Task<CommandResult> Execute(IBot bot, Message input, CommandTestInfo testInfo)
     {
-        var reply = Sentence.GetOne("help");
+        var reply = Sentence.GetOne(_keyHelp);
         await bot.ReplyTextMessage(input, reply);
         return Executed;
     }

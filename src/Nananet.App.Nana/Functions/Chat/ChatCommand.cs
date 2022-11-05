@@ -75,7 +75,7 @@ public class ChatCommand : Command
         var m = _contentRegex.Match(reply);
         if (m.Success)
         {
-            await bot.ReplyPictureUrlMessage(input, m.Groups[1].Value);
+            await bot.ReplyServerFileMessage(input, m.Groups[1].Value, FileType.Image);
             return;
         }
 

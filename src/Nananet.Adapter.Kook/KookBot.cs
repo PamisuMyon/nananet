@@ -23,13 +23,13 @@ public class KookBot : IBot
     protected User _me;
 
     protected KookSocketClient _client;
-    
+
     public KookBot(InitOptions? options = default)
     {
         _storage = options?.Storage ?? new FileStorage();
         _commands = options?.Commands ?? new List<Command>();
     }
-    
+
     public async Task Launch()
     {
         await Storage.Init();
@@ -40,6 +40,7 @@ public class KookBot : IBot
             Logger.L.Error("Options not available, launch failed.");
             return;
         }
+
         _appSettings = appSettings;
 
         var config = new KookSocketConfig { MessageCacheSize = 100 };
@@ -57,16 +58,17 @@ public class KookBot : IBot
                 UserId = user.Id.ToString(),
                 NickName = user.Username
             };
-            
-            _mentionRegex = new Regex($"({user.KMarkdownMention}|[@＠]{_me.NickName})", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            _mentionRegex = new Regex($"({Regex.Escape(user.KMarkdownMention)}|[@＠]{_me.NickName}#{user.IdentifyNumber}|[@＠]{_me.NickName})",
+                RegexOptions.IgnoreCase | RegexOptions.Multiline);
             Logger.L.Debug($"Mention Regex: {_mentionRegex}");
             await Refresh();
         };
         _client.MessageReceived += OnMessageReceived;
-        
+
         await Task.Delay(Timeout.Infinite);
     }
-    
+
     private Task Log(LogMessage msg)
     {
         Logger.L.Debug(msg);
@@ -88,14 +90,13 @@ public class KookBot : IBot
     {
         Logger.L.Debug($"OnMessageReceived: {input}");
         var message = Converter.FromSocketMessage(input);
-        if (message == null) return Task.CompletedTask;
+        if (message == null || message.Author.IsBot) return Task.CompletedTask;
         Task.Run(async () => await ProcessMessage(message));
         return Task.CompletedTask;
     }
 
     protected async Task ProcessMessage(Message input)
     {
-        if (input.Author.IsBot) return;
         if (_defender.IsBlocked(input.AuthorId))
         {
             Logger.L.Debug($"Message form blocked user: {input.AuthorId}");
@@ -122,7 +123,7 @@ public class KookBot : IBot
             }
             else if (input is TextMessage text)
             {
-                if (_mentionRegex.IsMatch(text.Content))
+                if (_mentionRegex.IsMatch(text.RichContent))
                     isTriggered = true;
                 else if (_commandRegex.IsMatch(text.Content))
                     isChannelCommand = true;
@@ -163,13 +164,14 @@ public class KookBot : IBot
             Logger.L.Error(e.StackTrace);
         }
     }
-    
+
     public bool IsReplyMe(Message input)
     {
         if (!input.IsPersonal && input.Reference != null)
         {
             return input.Reference.AuthorId == _appSettings.BotId;
         }
+
         return false;
     }
 
@@ -179,52 +181,94 @@ public class KookBot : IBot
         {
             text.Content = _mentionRegex.Replace(text.Content, "");
             text.Content = _commandRegex.Replace(text.Content, "");
+            text.Content = text.Content.Replace("@#", "");
             text.Content = text.Content.Trim();
+            Logger.L.Debug($"Pre test content: {text.Content}");
         }
     }
-    
-    public Task<string?> SendMessage<T>(string targetId, T messageBody, bool isPersonal, string? referenceId = null)
-    {
-        throw new NotImplementedException();
-    }
 
-    public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
+    public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal,
+        string? referenceId = null)
     {
         var channel = await _client.GetChannelAsync(ulong.Parse(targetId));
         if (channel is SocketTextChannel textChannel)
         {
-            await textChannel.SendTextAsync(content, referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+            var result = await textChannel.SendTextAsync(content,
+                referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+            return result.Id.ToString();
+        }
+
+        return null;
+    }
+
+    public async Task<string?> ReplyTextMessage(Message to, string content)
+    {
+        if (to.Origin is SocketMessage socketMessage)
+        {
+            var result = await socketMessage.Channel.SendTextAsync(content, new Quote(socketMessage.Id));
+            return result.Id.ToString();
+        }
+        return await SendTextMessage(to.ChannelId, content, to.IsPersonal, to.MessageId);
+    }
+
+    public async Task<string?> SendLocalFileMessage(string targetId, string filePath, bool isPersonal,
+        string? referenceId = null, FileType fileType = FileType.File)
+    {
+        var channel = await _client.GetChannelAsync(ulong.Parse(targetId));
+        if (channel is SocketTextChannel textChannel)
+        {
+            var result = await textChannel.SendFileAsync(filePath, null,
+                Converter.ToAttachmentType(fileType),
+                referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+            return result.Id.ToString();
         }
         return null;
     }
 
-    public Task<string?> ReplyTextMessage(Message to, string content)
+    public async Task<string?> ReplyLocalFileMessage(Message to, string filePath, FileType fileType = FileType.File)
     {
-        return SendTextMessage(to.ChannelId, content, to.IsPersonal, to.MessageId);
+        if (to.Origin is SocketMessage socketMessage)
+        {
+            var result = await socketMessage.Channel.SendFileAsync(filePath, null, Converter.ToAttachmentType(fileType),
+                new Quote(socketMessage.Id));
+            return result.Id.ToString();
+        }
+        return await SendLocalFileMessage(to.ChannelId, filePath, to.IsPersonal, to.MessageId, fileType);
     }
 
-    public Task<string?> SendPictureFileMessage(string targetId, string filePath, bool isPersonal, string? referenceId = null)
+    public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        var channel = await _client.GetChannelAsync(ulong.Parse(targetId));
+        if (channel is SocketTextChannel textChannel)
+        {
+            var attachment = new FileAttachment(new Uri(url), null, Converter.ToAttachmentType(fileType));
+            var result = await textChannel.SendFileAsync(attachment,
+                referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+            return result.Id.ToString();
+        }
+        return null;
     }
 
-    public Task<string?> ReplyPictureFileMessage(Message to, string filePath)
+    public async Task<string?> ReplyServerFileMessage(Message to, string url, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        if (to.Origin is SocketMessage socketMessage)
+        {
+            var attachment = new FileAttachment(new Uri(url), null, Converter.ToAttachmentType(fileType));
+            var result = await socketMessage.Channel.SendFileAsync(attachment, new Quote(socketMessage.Id));
+            return result.Id.ToString();
+        }
+        return await SendServerFileMessage(to.ChannelId, url, to.IsPersonal, to.MessageId, fileType);
     }
 
-    public Task<string?> SendPictureUrlMessage(string targetId, string url, bool isPersonal, string? referenceId = null)
+    public async Task<bool> DeleteMessage(string? targetId, string messageId)
     {
-        throw new NotImplementedException();
+        var channel = await _client.GetChannelAsync(ulong.Parse(targetId!));
+        if (channel is SocketTextChannel textChannel)
+        {
+            await textChannel.DeleteMessageAsync(Guid.Parse(messageId));
+            return true;
+        }
+        return false;
     }
-
-    public Task<string?> ReplyPictureUrlMessage(Message to, string url)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> DeleteMessage(string messageId)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

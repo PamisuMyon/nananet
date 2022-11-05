@@ -12,7 +12,7 @@ public class ActionLog : Entity, ICreatedOn
     public string UserId { get; set; }
     public string NickName { get; set; }
     public string ChannelId { get; set; }
-    public string IslandId { get; set; }
+    public string GroupId { get; set; }
     public bool IsPersonal { get; set; }
     public DateTime CreatedOn { get; set; }
 
@@ -25,7 +25,7 @@ public class ActionLog : Entity, ICreatedOn
             UserId = input.AuthorId,
             NickName = input.Author.NickName,
             ChannelId = input.ChannelId,
-            IslandId = input.GroupId,
+            GroupId = input.GroupId,
             IsPersonal = input.IsPersonal
         };
         if (input is TextMessage text)

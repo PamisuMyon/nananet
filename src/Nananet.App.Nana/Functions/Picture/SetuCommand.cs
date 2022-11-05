@@ -130,7 +130,7 @@ public class SetuCommand : Command
             if (serverImage != null)
             {
                 Logger.L.Debug($"Use server image cache: {serverImage.Url}");
-                var imgMsgId = await bot.ReplyPictureUrlMessage(input, serverImage.Url);
+                var imgMsgId = await bot.ReplyServerFileMessage(input, serverImage.Url, FileType.Image);
                 if (string.IsNullOrEmpty(imgMsgId))
                     error = _hints.SendErrorHint;
                 else

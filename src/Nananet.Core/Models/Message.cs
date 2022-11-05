@@ -33,6 +33,8 @@ public class Message
 
     public bool IsPersonal { get; set; }
 
+    public object? Origin { get; set; }
+    
     public override string ToString()
     {
         return $"[MSG] {MessageId}";

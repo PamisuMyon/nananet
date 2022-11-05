@@ -18,16 +18,24 @@ public interface IBot
 
     public Task<string?> ReplyTextMessage(Message to, string content);
 
-    public Task<string?> SendPictureFileMessage(string targetId, string filePath, bool isPersonal,
-        string? referenceId = null);
+    public Task<string?> SendLocalFileMessage(string targetId, string filePath, bool isPersonal,
+        string? referenceId = null, FileType fileType = FileType.File);
 
-    public Task<string?> ReplyPictureFileMessage(Message to, string filePath);
+    public Task<string?> ReplyLocalFileMessage(Message to, string filePath, FileType fileType = FileType.File);
 
-    public Task<string?> SendPictureUrlMessage(string targetId, string url, bool isPersonal,
-        string? referenceId = null);
+    public Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal,
+        string? referenceId = null, FileType fileType = FileType.File);
 
-    public Task<string?> ReplyPictureUrlMessage(Message to, string url);
+    public Task<string?> ReplyServerFileMessage(Message to, string url, FileType fileType = FileType.File);
 
-    public Task<bool> DeleteMessage(string messageId);
+    public Task<bool> DeleteMessage(string? targetId, string messageId);
 
+}
+
+public enum FileType
+{
+    File,
+    Image,
+    Video,
+    Audio,
 }

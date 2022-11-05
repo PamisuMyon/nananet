@@ -1,5 +1,6 @@
 ﻿using Kook;
 using Kook.WebSocket;
+using Nananet.Core;
 using Nananet.Core.Models;
 
 namespace Nananet.Adapter.Kook;
@@ -22,6 +23,7 @@ public static class Converter
             {
                 msg.ChannelId = textChannel.Id.ToString();
             }
+            msg.Origin = input;
         }
 
         return msg;
@@ -32,8 +34,8 @@ public static class Converter
         var msg = new TextMessage();
         msg.Content = input.CleanContent;
         msg.OriginalContent = msg.Content;
-        // msg.RichContent = input.Content;
-        // msg.RawContent = input.RawContent;
+        msg.RichContent = input.Content;
+        msg.RawContent = input.RawContent;
         return msg;
     }
 
@@ -47,4 +49,15 @@ public static class Converter
             IsBot = input.IsBot != null && input.IsBot.Value,
         };
     }
+
+    public static FileType FromAttachmentType(AttachmentType type)
+    {
+        return (FileType)type;
+    }
+
+    public static AttachmentType ToAttachmentType(FileType type)
+    {
+        return (AttachmentType)type;
+    }
+    
 }

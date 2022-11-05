@@ -1,6 +1,9 @@
-﻿
-using Nananet.Adapter.Kook;
+﻿using Nananet.App.Nana.Functions.Chat;
 using Nananet.App.Nana.Functions.Dice;
+using Nananet.App.Nana.Functions.Gacha;
+using Nananet.App.Nana.Functions.Help;
+using Nananet.App.Nana.Functions.Picture;
+using Nananet.App.Nana.Functions.Recruit;
 using Nananet.App.Nana.Kook;
 using Nananet.App.Nana.Storage;
 using Nananet.Core.Commands;
@@ -15,6 +18,14 @@ var options = new InitOptions
     Commands = new List<Command>
     {
         new DiceCommand(),
+        new GachaCommand(),
+        new KittyCommand(),
+        new DogeCommand(),
+        new BukeyiseseCommand(),
+        new HelpCommand(),
+        new RecruitCommand(),
+        new HelpCommand(),
+        new ChatCommand(),
     }
 };
 var bot = new NakoBot(options);
