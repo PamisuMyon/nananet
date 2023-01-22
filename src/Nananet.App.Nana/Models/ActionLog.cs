@@ -28,8 +28,8 @@ public class ActionLog : Entity, ICreatedOn
             GroupId = input.GroupId,
             IsPersonal = input.IsPersonal
         };
-        if (input is TextMessage text)
-            log.Content = text.Content;
+        if (input.HasContent())
+            log.Content = input.Content;
         await log.SaveAsync();
     }
     

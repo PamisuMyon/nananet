@@ -29,12 +29,11 @@ public static class Converter
         return msg;
     }
 
-    private static TextMessage FromFromTextSocketMessage(SocketMessage input)
+    private static Message FromFromTextSocketMessage(SocketMessage input)
     {
-        var msg = new TextMessage();
+        var msg = new Message();
         msg.Content = input.CleanContent;
         msg.OriginalContent = msg.Content;
-        msg.RichContent = input.Content;
         msg.RawContent = input.RawContent;
         return msg;
     }
@@ -43,7 +42,7 @@ public static class Converter
     {
         return new User
         {
-            UserId = input.Id.ToString(),
+            Id = input.Id.ToString(),
             NickName = input.Username,
             Avatar = input.Avatar,
             IsBot = input.IsBot != null && input.IsBot.Value,

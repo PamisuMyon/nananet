@@ -17,19 +17,18 @@ public class DiceCommand : Command
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
-        if (input is TextMessage text)
+        if (input.HasContent())
         {
-            if (_regexLax.IsMatch(text.Content)) return Task.FromResult(FullConfidence);
+            if (_regexLax.IsMatch(input.Content)) return Task.FromResult(FullConfidence);
         }
         return Task.FromResult(NoConfidence);
     }
 
     public override async Task<CommandResult> Execute(IBot bot, Message input, CommandTestInfo testInfo)
     {
-        var msg = input as TextMessage;
-        if (msg == null) return Failed;
+        if (!input.HasContent()) return Failed;
         
-        var lines = msg.Content.Split('\n');
+        var lines = input.Content.Split('\n');
         var options = new List<DiceOptions>();
         foreach (var line in lines)
         {
@@ -45,12 +44,12 @@ public class DiceCommand : Command
             options.Add(option);
         }
         var reply = Dicer.Rolls(options, Sentence.Get("commandError"), Sentence.Get("diceTooMany"));
-        if (!msg.IsPersonal && reply.Contains('\n')) {
+        if (!input.IsPersonal && reply.Contains('\n')) {
             reply = '\n' + reply;
         }
 
-        await bot.ReplyTextMessage(msg, reply);
-        // ActionLog.log(this.type, msg, reply);
+        await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
     

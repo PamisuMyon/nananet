@@ -54,12 +54,12 @@ public class SetuCommand : Command
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
-        if (input is not TextMessage text) return Task.FromResult(NoConfidence);
+        if (!input.HasContent()) return Task.FromResult(NoConfidence);
         foreach (var regex in _regexes)
         {
-            if (regex.IsMatch(text.Content))
+            if (regex.IsMatch(input.Content))
             {
-                var m = regex.Match(text.Content);
+                var m = regex.Match(input.Content);
                 return Task.FromResult(new CommandTestInfo
                 {
                     Confidence = 1,

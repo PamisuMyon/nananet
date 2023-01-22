@@ -18,9 +18,9 @@ public class RecruitCommand : Command
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
-        if (input is TextMessage text)
+        if (input.HasContent())
         {
-            if (_regexes.Any(regex => regex.IsMatch(text.Content)))
+            if (_regexes.Any(regex => regex.IsMatch(input.Content)))
             {
                 return Task.FromResult(FullConfidence);
             }

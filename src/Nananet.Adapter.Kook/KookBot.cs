@@ -18,7 +18,7 @@ public class KookBot : IBot
     protected List<Command> _commands;
     protected Command.CommandPickFunc _pickFunc = Command.PickO1;
     protected Regex _mentionRegex;
-    protected Regex _commandRegex = new Regex("^[\\.。]", RegexOptions.Multiline);
+    protected Regex _commandRegex = new("^[\\.。]", RegexOptions.Multiline);
     protected Defender _defender;
     protected User _me;
 
@@ -55,7 +55,7 @@ public class KookBot : IBot
             var user = _client.Rest.CurrentUser;
             _me = new User
             {
-                UserId = user.Id.ToString(),
+                Id = user.Id.ToString(),
                 NickName = user.Username
             };
 
@@ -114,18 +114,18 @@ public class KookBot : IBot
         }
         else
         {
-            if (!Config.HasChannel(input.ChannelId)) return;
+            // if (!Config.HasChannel(input.ChannelId)) return;
             Logger.L.Debug($"Channel message received: {input}");
 
             if (isReplyMe)
             {
                 isTriggered = true;
             }
-            else if (input is TextMessage text)
+            else if (input.HasContent())
             {
-                if (_mentionRegex.IsMatch(text.RichContent))
+                if (_mentionRegex.IsMatch(input.OriginalContent))
                     isTriggered = true;
-                else if (_commandRegex.IsMatch(text.Content))
+                else if (_commandRegex.IsMatch(input.Content))
                     isChannelCommand = true;
             }
         }
@@ -148,7 +148,7 @@ public class KookBot : IBot
             {
                 _defender.Record(new User
                 {
-                    UserId = input.AuthorId,
+                    Id = input.AuthorId,
                     NickName = input.Author.NickName
                 });
             }
@@ -177,13 +177,13 @@ public class KookBot : IBot
 
     protected virtual void CommandPreTest(Message input)
     {
-        if (input is TextMessage text)
+        if (input.HasContent())
         {
-            text.Content = _mentionRegex.Replace(text.Content, "");
-            text.Content = _commandRegex.Replace(text.Content, "");
-            text.Content = text.Content.Replace("@#", "");
-            text.Content = text.Content.Trim();
-            Logger.L.Debug($"Pre test content: {text.Content}");
+            input.Content = _mentionRegex.Replace(input.Content, "");
+            input.Content = _commandRegex.Replace(input.Content, "");
+            input.Content = input.Content.Replace("@#", "");
+            input.Content = input.Content.Trim();
+            Logger.L.Debug($"Pre test content: {input.Content}");
         }
     }
 

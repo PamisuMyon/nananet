@@ -15,7 +15,7 @@ public class BlockedUser : Entity, ICreatedOn
     {
         return new User
         {
-            UserId = blockedUser.UserId,
+            Id = blockedUser.UserId,
             UserName = blockedUser.UserName,
             NickName = blockedUser.Name
         };

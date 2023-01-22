@@ -34,11 +34,14 @@ public class MongoStorage : IStorage
         var appSettings = await MiscConfig.FindByName<AppSettings>(_keyAppSettings);
         if (appSettings == null)
         {
-            Logger.L.Error("No dodoAppSettings found!");
+            Logger.L.Error("No AppSettings found!");
             return default;
         }
+
+        _settings.AppId = appSettings.AppId;
         _settings.Token = appSettings.Token;
-        _settings.ClientId = appSettings.ClientId;
+        _settings.Secret = appSettings.Secret;
+        _settings.IsDebug = appSettings.IsDebug;
         _settings.BotId = appSettings.BotId;
         return _settings;
     }
@@ -48,7 +51,7 @@ public class MongoStorage : IStorage
         var config = await MiscConfig.FindByName<BotConfig>(_keyBotConfig);
         if (config == null)
         {
-            Logger.L.Warn("No dodoBotConfig found, using default.");
+            Logger.L.Warn("No BotConfig found, using default.");
             config = BotConfig.Default;
             await MiscConfig.Save("botConfig", config);
         }
@@ -75,10 +78,10 @@ public class MongoStorage : IStorage
         var bulk = DB.Update<BlockedUser>();
         foreach (var user in users)
         {
-            bulk.Match(u => u.UserId == user.UserId)
+            bulk.Match(u => u.UserId == user.Id)
                 .ModifyWith(new BlockedUser
                 {
-                    UserId = user.UserId,
+                    UserId = user.Id,
                     Name = user.NickName,
                     UserName = user.UserName
                 })

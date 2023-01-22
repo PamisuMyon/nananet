@@ -21,8 +21,8 @@ public class HelpCommand : Command
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
         if (options.IsCommand) return Task.FromResult(NoConfidence);
-        if (input is not TextMessage text) return Task.FromResult(NoConfidence);
-        if (_regex.IsMatch(text.Content)) return Task.FromResult(FullConfidence);
+        if (!input.HasContent()) return Task.FromResult(NoConfidence);
+        if (_regex.IsMatch(input.Content)) return Task.FromResult(FullConfidence);
         return Task.FromResult(NoConfidence);
     }
 

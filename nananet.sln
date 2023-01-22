@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.Adapter.Kook", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.App.Nana.Kook", "src\Nananet.App.Nana.Kook\Nananet.App.Nana.Kook.csproj", "{513A7197-2CFA-4403-A194-0D39471E8C45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.Adapter.QQGuild", "src\Nananet.Adapter.QQGuild\Nananet.Adapter.QQGuild.csproj", "{920A6505-0B01-49CA-8753-DC303C622546}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.App.Nana.QQGuild", "src\Nananet.App.Nana.QQGuild\Nananet.App.Nana.QQGuild.csproj", "{6168DD3D-5828-42E6-9FE7-C467497A931D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{513A7197-2CFA-4403-A194-0D39471E8C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{513A7197-2CFA-4403-A194-0D39471E8C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{513A7197-2CFA-4403-A194-0D39471E8C45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{920A6505-0B01-49CA-8753-DC303C622546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{920A6505-0B01-49CA-8753-DC303C622546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{920A6505-0B01-49CA-8753-DC303C622546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{920A6505-0B01-49CA-8753-DC303C622546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

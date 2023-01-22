@@ -15,10 +15,10 @@ public class GachaCommand : Command
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
-        if (input is not TextMessage text) return Task.FromResult(NoConfidence);
-        if (_regex.IsMatch(text.Content))
+        if (!input.HasContent()) return Task.FromResult(NoConfidence);
+        if (_regex.IsMatch(input.Content))
         {
-            var m = _regex.Match(text.Content);
+            var m = _regex.Match(input.Content);
             return Task.FromResult(new CommandTestInfo
             {
                 Confidence = 1,

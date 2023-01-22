@@ -1,81 +1,163 @@
+
+using System.Text;
+
 namespace Nananet.Core.Models;
 
 public class Message
 {
 
-    #region EventSubjectDataBusiness
-
-    public string EventId { get; set; }
-
-    public string EventType { get; set; }
-
-    public long Timestamp { get; set; }
+    #region 通用
     
-    #endregion
-
-    #region EventBodyChannelMessage EventBodyPersonalMessage
+    /// <summary>
+    /// 消息ID
+    /// </summary>
+    public string MessageId { get; set; }
     
+    /// <summary>
+    /// 群/服务器/主频道ID
+    /// </summary>
     public string GroupId { get; set; }
-
+    
+    /// <summary>
+    /// 子频道ID
+    /// </summary>
     public string ChannelId { get; set; }
 
+    /// <summary>
+    /// 消息创建者ID
+    /// </summary>
     public string AuthorId { get; set; }
 
+    /// <summary>
+    /// 消息创建者
+    /// </summary>
     public User Author { get; set; }
 
-    public string MessageId { get; set; }
+    /// <summary>
+    /// 引用消息
+    /// </summary>
+    public MessageReference? Reference { get; set; }
+    
+    /// <summary>
+    /// @的人
+    /// </summary>
+    public List<User>? Metions { get; set; }
 
-    public Reference? Reference { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime Time { get; set; }
+    
+    /// <summary>
+    /// 编辑时间
+    /// </summary>
+    public DateTime EditedTime { get; set; }
 
-    public int MessageType { get; set; }
+    public bool HasMentioned(string userId)
+    {
+        if (Metions == null) return false;
+        return Metions.Exists(user => user.Id == userId);
+    }
 
     #endregion
 
+    #region 自定义
+    
+    /// <summary>
+    /// 消息类型
+    /// </summary>
+    public int MessageType { get; set; }
+    
+    /// <summary>
+    /// 是否为私聊
+    /// </summary>
     public bool IsPersonal { get; set; }
 
+    /// <summary>
+    /// 原始数据对象
+    /// </summary>
     public object? Origin { get; set; }
+    
+    #endregion
+
+    #region 文本
+
+    /// <summary>
+    /// 处理过的纯文本内容
+    /// </summary>
+    public string Content { get; set; }
+    /// <summary>
+    /// 原始内容
+    /// </summary>
+    public string RawContent { get; set; }
+    /// <summary>
+    /// 未处理的纯文本内容
+    /// </summary>
+    public string OriginalContent { get; set; }
+
+    /// <summary>
+    /// 消息是否包含文本内容
+    /// </summary>
+    public bool HasContent()
+    {
+        return !string.IsNullOrEmpty(RawContent);
+    }
+    
+    #endregion
+
+    #region 媒体
+
+    /// <summary>
+    /// 消息附件列表
+    /// </summary>
+    public List<MessageAttachment>? Attachments { get; set; }
+
+    public bool HasAttachment()
+    {
+        return Attachments != null && Attachments.Count != 0;
+    }
+    
+    #endregion
     
     public override string ToString()
     {
-        return $"[MSG] {MessageId}";
+        var sb = new StringBuilder($"[MSG] {MessageId}");
+        if (HasContent())
+            sb.Append($" Content: {Content} ");
+        if (HasAttachment())
+            sb.Append($" Attachment0: {Attachments?[0].Url} ");
+        return sb.ToString();
     }
     
 }
 
-public class Reference
+/// <summary>
+/// 消息引用
+/// </summary>
+public class MessageReference
 {
+    /// <summary>
+    /// 消息ID
+    /// </summary>
     public string MessageId;
+    /// <summary>
+    /// 消息创建者ID
+    /// </summary>
     public string AuthorId { get; set; }
+    /// <summary>
+    /// 消息创建者昵称
+    /// </summary>
     public string NickName { get; set; }
 }
 
-public class TextMessage : Message
+/// <summary>
+/// 消息附件
+/// </summary>
+public class MessageAttachment
 {
-    public string Content { get; set; }
-    public string RichContent { get; set; }
-    public string RawContent { get; set; }
-    public string OriginalContent { get; set; }
-
-    public override string ToString()
-    {
-        return $"[MSG TXT] {MessageId} {Content}";
-    }
-
-}
-
-public class PictureMessage : Message
-{
+    /// <summary>
+    /// Url
+    /// </summary>
     public string Url { get; set; }
-
-    public int? Width { get; set; }
-
-    public int? Height { get; set; }
-
-    public int? IsOriginal { get; set; }
-
-    public override string ToString()
-    {
-        return $"[MSG PIC] {MessageId} {Url}";
-    }
-    
 }
+

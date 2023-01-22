@@ -31,8 +31,8 @@ public abstract class SimplePictureCommand : Command
 
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
-        if (input is not TextMessage text) return Task.FromResult(NoConfidence);
-        if (Regexes.Any(r => r.IsMatch(text.Content))) return Task.FromResult(FullConfidence);
+        if (!input.HasContent()) return Task.FromResult(NoConfidence);
+        if (Regexes.Any(r => r.IsMatch(input.Content))) return Task.FromResult(FullConfidence);
         return Task.FromResult(NoConfidence);
     }
 

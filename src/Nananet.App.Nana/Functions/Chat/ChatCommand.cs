@@ -17,24 +17,24 @@ public class ChatCommand : Command
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
         if (options.IsCommand) return Task.FromResult(NoConfidence);
-        if (input is not TextMessage) return Task.FromResult(NoConfidence);
+        if (!input.HasContent()) return Task.FromResult(NoConfidence);
         return Task.FromResult(FullConfidence);
     }
 
     public override async Task<CommandResult> Execute(IBot bot, Message input, CommandTestInfo testInfo)
     {
-        if (input is not TextMessage text) return Failed;
+        if (!input.HasContent()) return Failed;
 
-        if (!text.IsPersonal
-            && (string.IsNullOrEmpty(text.Content)
-                || string.IsNullOrEmpty(text.Content.Replace("　", ""))))
+        if (!input.IsPersonal
+            && (string.IsNullOrEmpty(input.Content)
+                || string.IsNullOrEmpty(input.Content.Replace("　", ""))))
         {
             var s = Sentence.GetOne("atOnly");
             await bot.ReplyTextMessage(input, s);
             return Executed;
         }
 
-        var content = Chatter.Wash(text.Content);
+        var content = Chatter.Wash(input.Content);
         var convReply = Chatter.GetConversationReply(content);
         if (convReply != null && convReply.Value.Priority == "2")
         {
