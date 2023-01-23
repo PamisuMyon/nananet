@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Http.Headers;
+using System.Text;
+using System.Text.RegularExpressions;
 using Nananet.Core;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
@@ -6,6 +8,7 @@ using Nananet.Core.Storage;
 using Nananet.Core.Utils;
 using QQChannelFramework.Api;
 using QQChannelFramework.Expansions.Bot;
+using RestSharp;
 using QQGuildMessage = QQChannelFramework.Models.MessageModels.Message;
 
 namespace Nananet.Adapter.QQGuild;
@@ -61,10 +64,18 @@ public class QQGuildBot : IBot
             _qChannelApi.UseSandBoxMode();
 
         var channelBot = new ChannelBot(_qChannelApi);
-        channelBot.UsePrivateBot();
-        channelBot.RegisterUserMessageEvent();
-        // channelBot.RegisterAtMessageEvent();
+        // 指定是否为私域机器人 注册消息事件
+        if (_appSettings.IsPrivate)
+        {
+            channelBot.UsePrivateBot();
+            channelBot.RegisterUserMessageEvent();
+        }
+        else
+        {
+            channelBot.RegisterAtMessageEvent();
+        }
         // channelBot.RegisterDirectMessageEvent();
+
         channelBot.OnConnected += () => { Logger.L.Info("Bot Connected."); };
         channelBot.AuthenticationSuccess += async () =>
         {
@@ -81,8 +92,8 @@ public class QQGuildBot : IBot
         };
         channelBot.OnError += ex => { Logger.L.Error($"Bot Error -> {ex.Message}"); };
         channelBot.ReceivedUserMessage += OnMessageReceived;
-        // channelBot.ReceivedAtMessage += OnMessageReceived;
-        // channelBot.ReceivedDirectMessage += OnMessageReceived;
+        channelBot.ReceivedAtMessage += OnMessageReceived;
+        channelBot.ReceivedDirectMessage += OnMessageReceived;
 
         await channelBot.OnlineAsync();
         await Task.Delay(Timeout.Infinite);
@@ -212,19 +223,24 @@ public class QQGuildBot : IBot
         throw new NotImplementedException();
     }
 
-    public Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
+    public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        var msg = await _qChannelApi.GetMessageApi().SendImageMessageAsync(targetId, url, referenceId);
+        return msg.Id;
     }
 
     public Task<string?> ReplyServerFileMessage(Message to, string url, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        return SendServerFileMessage(to.ChannelId, url, to.IsPersonal, to.MessageId);
     }
 
-    public Task<bool> DeleteMessage(string? targetId, string messageId)
+    public async Task<bool> DeleteMessage(string? targetId, string messageId)
     {
-        throw new NotImplementedException();
+        // 公域机器人暂不支持撤回消息
+        // https://bot.q.qq.com/wiki/develop/api/openapi/message/delete_message.html
+        if (!_appSettings.IsPrivate) return false;
+        await _qChannelApi.GetMessageApi().RetractMessageAsync(targetId, messageId, true);
+        return true;
     }
     
 }

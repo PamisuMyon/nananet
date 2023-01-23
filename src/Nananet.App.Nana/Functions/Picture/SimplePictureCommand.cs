@@ -21,14 +21,24 @@ public abstract class SimplePictureCommand : Command
     protected static int _timeout => 8000;
     protected abstract Regex[] Regexes { get; }
 
-    protected delegate Task<string?> DownloadFunc();
-
-    protected abstract DownloadFunc[] DownloadFuncs { get; }
+    protected List<SimplePictureRequester> PictureRequesters { get; } = new();
 
     protected abstract PicCommandHints Hints { get; }
 
-    protected Spam _temporarySpam = new Spam(0, 1, 5000);
+    protected Spam _temporarySpam = new(0, 1, 5000);
 
+    protected bool _downloadFile = false;
+
+    public override async Task Init(IBot bot)
+    {
+        await base.Init(bot);
+        if (bot.Config.Extra != null)
+        {
+            if (bot.Config.Extra.ContainsKey(""))
+                _downloadFile = (bool)bot.Config.Extra["downloadFile"];
+        }
+    }
+    
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
         if (!input.HasContent()) return Task.FromResult(NoConfidence);
@@ -43,16 +53,20 @@ public abstract class SimplePictureCommand : Command
         _temporarySpam.Record(input.AuthorId);
         var hintMsgId = await bot.ReplyTextMessage(input, Hints.DownloadingHint);
 
-        var filePath = await DownloadFuncs.RandomElem().Invoke();
+        var path = await PictureRequesters.RandomElem().Execute();
         string? error = null;
-        if (filePath != null)
+        if (path != null)
         {
-            var imgMsgId = await bot.ReplyLocalFileMessage(input, filePath, FileType.Image);
-            FileUtil.DeleteUnreliably(filePath);
+            string? imgMsgId;
+            if (_downloadFile)
+                imgMsgId = await bot.ReplyLocalFileMessage(input, path, FileType.Image);
+            else
+                imgMsgId = await bot.ReplyServerFileMessage(input, path, FileType.Image);
+            FileUtil.DeleteUnreliably(path);
             if (imgMsgId == null)
                 error = Hints.DownloadErrorHint;
             else
-                await ActionLog.Log(Name, input, filePath);
+                await ActionLog.Log(Name, input, path);
         }
         else
         {
@@ -77,6 +91,58 @@ public abstract class SimplePictureCommand : Command
     }
 }
 
+public class SimplePictureRequester
+{
+    private readonly string _url;
+    private readonly int _timeout;
+    private readonly bool _downloadFile;
+    public delegate string ParseResponse(string content);
+    private readonly ParseResponse _getFileUrlFromResponse;
+
+    public SimplePictureRequester(string url, int timeout, bool downloadFile, ParseResponse getFileUrlFromResponse)
+    {
+        _url = url;
+        _timeout = timeout;
+        _downloadFile = downloadFile;
+        _getFileUrlFromResponse = getFileUrlFromResponse;
+    }
+
+    public async Task<string?> Execute()
+    {
+        var options = new RestClientOptions(_url)
+        {
+            MaxTimeout = _timeout,
+        };
+        var client = new RestClient(options);
+        
+        var request = new RestRequest();
+        Logger.L.Debug($"Requesting: {_url}");
+        try
+        {
+            var response = await client.ExecuteGetAsync(request);
+            if (response.Content == null) return null;
+            var url = _getFileUrlFromResponse(response.Content);
+            if (!_downloadFile)
+                return url;
+            
+            var fileName = url.Split("/")[^1];
+            var dir = FileUtil.PathFromBase("cache/images");
+            
+            Logger.L.Debug($"Downloading file: {url}");
+            await NetUtil.DownloadFile(url, dir, fileName);
+            var path = Path.Combine(dir, fileName);
+            Logger.L.Debug($"File downloaded: {path}" );
+            return path;
+        }
+        catch (Exception e)
+        {
+            Logger.L.Error(e.Message);
+        }
+
+        return null;
+    }
+}
+
 public class KittyCommand : SimplePictureCommand
 {
     public override string Name => "kitty";
@@ -98,72 +164,24 @@ public class KittyCommand : SimplePictureCommand
 
     protected override PicCommandHints Hints => _hints;
 
-    private DownloadFunc[] _downloadFuncs =
+    public override async Task Init(IBot bot)
     {
-        DownloadRandomCat,
-        DownloadTheCatApi
-    };
-
-    protected override DownloadFunc[] DownloadFuncs => _downloadFuncs;
-
-    public static async Task<string?> DownloadTheCatApi()
-    {
-        var client = new RestClient("https://api.thecatapi.com/v1/images/search")
-        {
-            Timeout = _timeout
-        };
-        var request = new RestRequest();
-        Logger.L.Debug("Requesting the cat api...");
-        try
-        {
-            var response = await client.ExecuteGetAsync(request);
-            var ja = JArray.Parse(response.Content!);
-            var url = ja[0]["url"]!.ToString();
-            var fileName = url.Split("/")[^1];
-            var dir = FileUtil.PathFromBase("cache/images");
-            
-            Logger.L.Debug($"Downloading file: {url}");
-            await NetUtil.DownloadFile(url, dir, fileName);
-            var path = Path.Combine(dir, fileName);
-            Logger.L.Debug($"File downloaded: {path}" );
-            return path;
-        }
-        catch (Exception e)
-        {
-            Logger.L.Error(e.Message);
-        }
-
-        return null;
-    }
-
-    public static async Task<string?> DownloadRandomCat()
-    {
-        var client = new RestClient("https://aws.random.cat/meow")
-        {
-            Timeout = _timeout,
-        };
-        var request = new RestRequest();
-        Logger.L.Debug("Requesting random cat...");
-        try
-        {
-            var response = await client.ExecuteGetAsync(request);
-            var jo = JObject.Parse(response.Content!);
-            var url = jo["file"]!.ToString();
-            var fileName = url.Split("/")[^1];
-            var dir = FileUtil.PathFromBase("cache/images");
-            
-            Logger.L.Debug($"Downloading file: {url}");
-            await NetUtil.DownloadFile(url, dir, fileName);
-            var path = Path.Combine(dir, fileName);
-            Logger.L.Debug($"File downloaded: {path}" );
-            return path;
-        }
-        catch (Exception e)
-        {
-            Logger.L.Error(e.Message);
-        }
-
-        return null;
+        await base.Init(bot);
+        PictureRequesters.Add(
+            new SimplePictureRequester("https://api.thecatapi.com/v1/images/search",
+                _timeout, _downloadFile, content =>
+                {
+                    var ja = JArray.Parse(content);
+                    return ja[0]["url"]!.ToString();
+                }));
+        
+        PictureRequesters.Add(
+            new SimplePictureRequester("https://aws.random.cat/meow",
+                _timeout, _downloadFile, content =>
+                {
+                    var jo = JObject.Parse(content!);
+                    return jo["file"]!.ToString();
+                }));
     }
 }
 
@@ -188,40 +206,16 @@ public class DogeCommand : SimplePictureCommand
 
     protected override PicCommandHints Hints => _hints;
 
-    private DownloadFunc[] _downloadFuncs =
+    public override async Task Init(IBot bot)
     {
-        DownloadShibe,
-    };
-
-    protected override DownloadFunc[] DownloadFuncs => _downloadFuncs;
-    
-    public static async Task<string?> DownloadShibe()
-    {
-        var client = new RestClient("https://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true")
-        {
-            Timeout = _timeout
-        };
-        var request = new RestRequest();
-        Logger.L.Debug("Requesting shibe...");
-        try
-        {
-            var response = await client.ExecuteGetAsync(request);
-            var ja = JArray.Parse(response.Content!);
-            var url = ja[0].ToString();
-            var fileName = url.Split("/")[^1];
-            var dir = FileUtil.PathFromBase("cache/images");
-            
-            Logger.L.Debug($"Downloading file: {url}");
-            await NetUtil.DownloadFile(url, dir, fileName);
-            var path = Path.Combine(dir, fileName);
-            Logger.L.Debug($"File downloaded: {path}" );
-            return path;
-        }
-        catch (Exception e)
-        {
-            Logger.L.Error(e.Message);
-        }
-
-        return null;
+        await base.Init(bot);
+        PictureRequesters.Add(
+            new SimplePictureRequester("https://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true",
+                _timeout, _downloadFile, content =>
+                {
+                    var ja = JArray.Parse(content!);
+                    return ja[0].ToString();
+                }));
     }
+    
 }

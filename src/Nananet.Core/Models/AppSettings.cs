@@ -23,6 +23,11 @@ public class AppSettings
     public bool IsDebug { get; set; }
     
     /// <summary>
+    /// QQ机器人 是否为私域 否则为公域
+    /// </summary>
+    public bool IsPrivate { get; set; }
+    
+    /// <summary>
     /// 手动配置的bot账号ID
     /// </summary>
     public string BotId { get; set; }

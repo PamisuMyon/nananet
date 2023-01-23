@@ -42,6 +42,7 @@ public class MongoStorage : IStorage
         _settings.Token = appSettings.Token;
         _settings.Secret = appSettings.Secret;
         _settings.IsDebug = appSettings.IsDebug;
+        _settings.IsPrivate = appSettings.IsPrivate;
         _settings.BotId = appSettings.BotId;
         return _settings;
     }

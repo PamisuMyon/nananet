@@ -107,11 +107,13 @@ public class Chatter
     public static async Task<NanaChatResult?> RequestNanaChat(string content)
     {
         var url = $"http://127.0.0.1:7700/api/v1/chat?msg={content}";
-        var client = new RestClient(url)
+        var options = new RestClientOptions(url)
         {
-            Timeout = 2000,
+            MaxTimeout = 2000,
             ThrowOnAnyError = true
         };
+        var client = new RestClient(options);
+
         var request = new RestRequest();
         try
         {

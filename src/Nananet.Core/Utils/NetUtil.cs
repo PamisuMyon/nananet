@@ -30,11 +30,13 @@ public class NetUtil
 
     public static async Task<bool> IsUrlAlive(string url, int timeout = 1000)
     {
-        var client = new RestClient(url)
+        var options = new RestClientOptions(url)
         {
-            Timeout = timeout
+            MaxTimeout = timeout,
         };
-        var response = await client.ExecuteAsync(new RestRequest(Method.OPTIONS));
+        var client = new RestClient(options);
+
+        var response = await client.ExecuteAsync(new RestRequest("", Method.Options));
         return response.IsSuccessful;
     }
     
