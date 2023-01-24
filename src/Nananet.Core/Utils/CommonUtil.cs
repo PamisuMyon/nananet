@@ -63,4 +63,30 @@ public static class CommonUtil
         }
     }
     
+    public static List<List<T>> Combinations<T>(List<T> items, int limit) {
+        return DoCombination(items, limit, 0);
+    }
+    
+    private static List<List<T>> DoCombination<T>(List<T> items, int limit, int index) {
+        // 递归跳出条件，组合数量为1时，将每个元素作为单独的数组返回，和上一层组合
+        if (limit == 1 || index == items.Count - 1) {
+            List<List<T>> list = new();
+            var elemLists = items.Take(new Range(index, Index.End))
+                .Select(elem => new List<T> { elem });
+            list.AddRange(elemLists);
+            return list;
+        }
+        List<List<T>> results = new();
+        // 从第0个元素依次向后，将自身与下一层数组组合
+        for (; index <= items.Count - limit; index++) {
+            var list = DoCombination(items, limit - 1, index + 1);
+            list.ForEach(elem =>
+            {
+                elem.Insert(0, items[index]);
+            });
+            results.AddRange(list);
+        }
+        return results;
+    }
+    
 }

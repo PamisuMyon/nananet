@@ -32,7 +32,13 @@ public static class Converter
 
         if (input.Attachments != null && input.Attachments.Count != 0)
         {
-            msg.Attachments = input.Attachments.Select(it => new MessageAttachment { Url = it.Url }).ToList();
+            msg.Attachments = input.Attachments.Select(it =>
+            {
+                var url = it.Url;
+                if (!url.StartsWith("http"))
+                    url = "https://" + url;
+                return new MessageAttachment { Url = url };
+            }).ToList();
         }
         if (!string.IsNullOrEmpty(input.Content))
         {

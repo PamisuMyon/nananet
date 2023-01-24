@@ -22,7 +22,6 @@ var options = new InitOptions
         new KittyCommand(),
         new DogeCommand(),
         new BukeyiseseCommand(),
-        new HelpCommand(),
         new RecruitCommand(),
         new HelpCommand(),
         new ChatCommand(),

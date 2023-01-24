@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Nananet.Core;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
@@ -8,7 +6,6 @@ using Nananet.Core.Storage;
 using Nananet.Core.Utils;
 using QQChannelFramework.Api;
 using QQChannelFramework.Expansions.Bot;
-using RestSharp;
 using QQGuildMessage = QQChannelFramework.Models.MessageModels.Message;
 
 namespace Nananet.Adapter.QQGuild;
@@ -204,6 +201,7 @@ public class QQGuildBot : IBot
 
     public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
+        Logger.L.Debug($"Sending text message to {targetId}: \n {content}");
         var result = await _qChannelApi.GetMessageApi().SendTextMessageAsync(targetId, content, referenceId ?? "");
         return result.Id;
     }
@@ -225,6 +223,7 @@ public class QQGuildBot : IBot
 
     public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
+        Logger.L.Debug($"Sending image url message to {targetId}: \n {url}");
         var msg = await _qChannelApi.GetMessageApi().SendImageMessageAsync(targetId, url, referenceId);
         return msg.Id;
     }
@@ -239,6 +238,7 @@ public class QQGuildBot : IBot
         // 公域机器人暂不支持撤回消息
         // https://bot.q.qq.com/wiki/develop/api/openapi/message/delete_message.html
         if (!_appSettings.IsPrivate) return false;
+        Logger.L.Debug($"Deleting message: {messageId}");
         await _qChannelApi.GetMessageApi().RetractMessageAsync(targetId, messageId, true);
         return true;
     }

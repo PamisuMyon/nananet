@@ -1,4 +1,5 @@
 ﻿using MongoDB.Entities;
+using Newtonsoft.Json.Linq;
 
 namespace Nananet.App.Nana.Models.Ak;
 
@@ -196,4 +197,24 @@ public class Character : Entity
     // public object TeamId { get; set; }
     // public string TokenKey { get; set; }
     // public Trait Trait { get; set; }
+
+
+    public static Task<List<Character>> FindByRecruit(int? rarity, string? position, string? profession, List<string>? tags)
+    {
+        var query = new JObject();
+        query["canRecruit"] = true;
+        if (rarity != null)
+            query["rarity"] = rarity.Value;
+        if (position != null)
+            query["position"] = position;
+        if (profession != null)
+            query["profession"] = profession;
+        if (tags != null)
+            query["tagList"] = new JObject
+            {
+                ["$all"] = JArray.FromObject(tags) 
+            };
+        return DB.Find<Character>().MatchString(query.ToString()).ExecuteAsync();
+    }
+    
 }
