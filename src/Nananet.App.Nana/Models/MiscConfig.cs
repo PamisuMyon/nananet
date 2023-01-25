@@ -31,5 +31,14 @@ public class MiscConfig : Entity
         };
         await doc.SaveAsync();
     }
+
+    public static async Task Upsert(string name, object value)
+    {
+        await DB.Update<MiscConfig>()
+            .Match(d => d.Name == name)
+            .Modify(d => d.Value, BsonDocument.Parse(JsonUtil.ToJson(value)))
+            .Option(options => options.IsUpsert = true)
+            .ExecuteAsync();
+    }
     
 }

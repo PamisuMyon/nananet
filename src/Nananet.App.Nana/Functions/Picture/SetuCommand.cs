@@ -42,14 +42,7 @@ public class SetuCommand : Command
     {
         await base.Init(bot);
         _pxKore = new PxKore();
-
-        if (bot.Config.Extra != null)
-        {
-            if (bot.Config.Extra.ContainsKey("setuProxy"))
-                _imageProxy = bot.Config.Extra["setuProxy"].ToString()!;
-            else
-                _imageProxy = "i.pixiv.cat";
-        }
+        bot.Config.TryGetExtraValue("setuProxy", out _imageProxy, "i.pixiv.cat");
     }
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)

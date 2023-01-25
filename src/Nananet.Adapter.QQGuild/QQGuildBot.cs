@@ -16,6 +16,7 @@ public class QQGuildBot : IBot
     public IStorage Storage => _storage;
     public BotConfig Config => _storage.Config;
     protected AppSettings _appSettings;
+    public AppSettings AppSettings => _appSettings;
     protected List<Command> _commands;
     protected Command.CommandPickFunc _pickFunc = Command.PickO1;
     protected Regex _mentionRegex;
@@ -156,6 +157,8 @@ public class QQGuildBot : IBot
         
         if (!isTriggered && !isChannelCommand) return;
         input.Content = input.Content.Trim();
+        if (input.Content.StartsWith("/"))
+            input.Content = input.Content.Remove(0, 1);
         
         try
         {
@@ -202,12 +205,26 @@ public class QQGuildBot : IBot
     public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
         Logger.L.Debug($"Sending text message to {targetId}: \n {content}");
-        var result = await _qChannelApi.GetMessageApi().SendTextMessageAsync(targetId, content, referenceId ?? "");
-        return result.Id;
+        try
+        {
+            var result = await _qChannelApi.GetMessageApi().SendTextMessageAsync(targetId, content, referenceId ?? "");
+            return result.Id;
+        }
+        catch (Exception e)
+        {
+            Logger.L.Error($"Sending image url error: {e.Message}");
+            Logger.L.Error(e.StackTrace);
+        }
+        return null;
     }
 
     public Task<string?> ReplyTextMessage(Message to, string content)
     {
+        if (!to.IsPersonal)
+        {
+            // content = $"<@!{to.Author.Id}>" + content;   // @用户会产生提示消息
+            content = $"@{to.Member.NickName} " + content;   // 避免打扰使用假@
+        }
         return SendTextMessage(to.ChannelId, content, to.IsPersonal, to.MessageId);
     }
 
@@ -224,8 +241,25 @@ public class QQGuildBot : IBot
     public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
         Logger.L.Debug($"Sending image url message to {targetId}: \n {url}");
-        var msg = await _qChannelApi.GetMessageApi().SendImageMessageAsync(targetId, url, referenceId);
-        return msg.Id;
+        // hard-code 重试次数
+        var retryTimes = 3;
+        do
+        {
+            try
+            {
+                var msg = await _qChannelApi.GetMessageApi().SendImageMessageAsync(targetId, url, referenceId);
+                return msg.Id;
+            }
+            catch (Exception e)
+            {
+                Logger.L.Error($"Sending image url error: {e.Message}");
+                Logger.L.Error(e.StackTrace);
+                retryTimes--;
+                Logger.L.Error($"Sending image url failed, retrying({retryTimes})");
+                await Task.Delay(500);
+            }
+        } while (retryTimes >= 0);
+        return null;
     }
 
     public Task<string?> ReplyServerFileMessage(Message to, string url, FileType fileType = FileType.File)

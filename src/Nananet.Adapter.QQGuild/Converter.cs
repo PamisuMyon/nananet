@@ -2,6 +2,7 @@
 using Nananet.Core.Models;
 using QQGuildMessage = QQChannelFramework.Models.MessageModels.Message;
 using QQGuildUser = QQChannelFramework.Models.User;
+using QQGuildMember = QQChannelFramework.Models.Member;
 
 namespace Nananet.Adapter.QQGuild;
 
@@ -18,6 +19,8 @@ public static class Converter
         msg.ChannelId = input.ChannelId;
         msg.AuthorId = input.Author.Id;
         msg.Author = FromUser(input.Author);
+        if (input.Member != null)
+            msg.Member = FromMember(input.Member);
         if (input.MessageReference != null)
         {
             msg.Reference = new MessageReference
@@ -68,6 +71,15 @@ public static class Converter
             NickName = input.UserName,
             Avatar = input.Avatar,
             IsBot = input.IsBot,
+        };
+    }
+
+    public static Member FromMember(QQGuildMember input)
+    {
+        return new Member
+        {
+            NickName = input.Nick,
+            Roles = input.Roles,
         };
     }
     

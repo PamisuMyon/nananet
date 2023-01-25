@@ -81,7 +81,7 @@ public static class GachaMan
             };
             allOps.Add(op);
 
-            if (isOperatorAvailable(special, op.Name))
+            if (IsOperatorAvailable(special, op.Name))
                 availOps.Add(op);
         });
 
@@ -119,16 +119,11 @@ public static class GachaMan
         Logger.L.Info("Gacha pools updated!");
     }
 
-    public static bool isOperatorAvailable(BsonDocument special, string opName)
+    public static bool IsOperatorAvailable(BsonDocument special, string opName)
     {
-        if (special["limit"].AsBsonArray.Any(it => it.AsString == opName))
+        if (special["special"].AsBsonArray.Any(it => it.AsString == opName))
             return false;
-        if (special["linkage"].AsBsonArray.Any(it => it.AsString == opName))
-            return false;
-
-        return special["unavailable"].AsBsonDocument.Values
-            .SelectMany(un => un.AsBsonArray)
-            .All(it => it.AsString != opName);
+        return true;
     }
 
     public static List<Operator> GetOperatorsByRarity(IEnumerable<Operator> operators, int rarity)

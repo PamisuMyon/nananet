@@ -15,6 +15,7 @@ public class KookBot : IBot
     public IStorage Storage => _storage;
     public BotConfig Config => _storage.Config;
     protected AppSettings _appSettings;
+    public AppSettings AppSettings => _appSettings;
     protected List<Command> _commands;
     protected Command.CommandPickFunc _pickFunc = Command.PickO1;
     protected Regex _mentionRegex;

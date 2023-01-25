@@ -9,6 +9,8 @@ public interface IBot
 
     public BotConfig Config { get; }
     
+    public AppSettings AppSettings { get; }
+    
     public Task Launch();
 
     public Task Refresh();

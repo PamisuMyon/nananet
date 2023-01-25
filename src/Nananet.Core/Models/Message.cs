@@ -32,6 +32,11 @@ public class Message
     /// 消息创建者
     /// </summary>
     public User Author { get; set; }
+    
+    /// <summary>
+    /// 消息创建者成员信息
+    /// </summary>
+    public Member Member { get; set; }
 
     /// <summary>
     /// 引用消息

@@ -32,4 +32,9 @@ public class AppSettings
     /// </summary>
     public string BotId { get; set; }
 
+    /// <summary>
+    /// 平台名称 kook qqGuild
+    /// </summary>
+    public string Platform { get; set; } = "";
+
 }

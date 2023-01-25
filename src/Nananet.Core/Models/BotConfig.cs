@@ -1,7 +1,4 @@
-﻿
-using Newtonsoft.Json.Linq;
-
-namespace Nananet.Core.Models;
+﻿namespace Nananet.Core.Models;
 
 public record BotConfig
 {
@@ -9,6 +6,7 @@ public record BotConfig
     
     public Dictionary<string, ChannelConfig> Channels { get; set; }
 
+    // TODO 考虑移除
     public class ChannelConfig
     {
         public string ChannelId { get; set; }
@@ -37,6 +35,19 @@ public record BotConfig
     }
     
     public Dictionary<string, object>? Extra { get; set; }
+
+    public bool TryGetExtraValue<T>(string key, out T? value)
+    {
+        return TryGetExtraValue(key, out value, default);
+    }
+
+    public bool TryGetExtraValue<T>(string key, out T? value, T defaultValue)
+    {
+        value = defaultValue;
+        if (Extra == null || !Extra.ContainsKey(key)) return false;
+        value = (T) Extra[key];
+        return true;
+    }
 
     private static BotConfig? s_default;
     public static BotConfig Default

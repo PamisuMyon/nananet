@@ -1,4 +1,5 @@
-﻿using Nananet.App.Nana.Models.Ak;
+﻿using Nananet.App.Nana.Models;
+using Nananet.App.Nana.Models.Ak;
 using Nananet.Core;
 using Nananet.Core.Utils;
 using Quartz;
@@ -8,18 +9,34 @@ namespace Nananet.App.Nana.Schedulers;
 
 public class Alarm
 {
-    protected IBot _bot;
-
-    public Alarm(IBot bot)
+    private static Alarm? s_instance;
+    public static Alarm Instance
     {
-        _bot = bot;
+        get
+        {
+            if (s_instance == null)
+                s_instance = new Alarm();
+            return s_instance;
+        }
+    }
+    private Alarm()
+    {
+        if (s_instance != null)
+            throw new Exception("Instance already exists.");
     }
 
-    public async void Schedule()
+    private IBot _bot;
+    protected IScheduler? _scheduler;
+
+    public async Task Schedule(IBot bot)
     {
+        _bot = bot;
+        if (_scheduler != null)
+            await _scheduler.Shutdown();
+        
         var factory = new StdSchedulerFactory();
-        var scheduler = await factory.GetScheduler();
-        await scheduler.Start();
+        _scheduler = await factory.GetScheduler();
+        await _scheduler.Start();
 
         var job = JobBuilder.Create<BirthdayJob>()
             .WithIdentity("birthday", "group")
@@ -30,7 +47,7 @@ public class Alarm
             .WithCronSchedule("22 0 0 * * ?")
             .Build();
 
-        await scheduler.ScheduleJob(job, trigger);
+        await _scheduler.ScheduleJob(job, trigger);
 
         Logger.L.Info("Alarm scheduled.");
     }
@@ -47,6 +64,10 @@ public class Alarm
 
             try
             {
+                var config = await MiscConfig.FindByName<AlarmConfig>(bot.AppSettings.Platform + "AlarmConfig");
+                if (config == null)
+                    return;
+
                 var content = await Handbook.GetBirthdayMessageSimple(DateTime.Now);
                 if (string.IsNullOrEmpty(content))
                 {
@@ -54,13 +75,12 @@ public class Alarm
                     return;
                 }
 
-                foreach (var it in bot.Config.Channels)
+                foreach (var id in config.Channels.Keys)
                 {
-                    if (it.Key == "all") continue;
-                    if (it.Value.AlarmBirthday)
+                    if (config.Channels[id].AlarmBirthday)
                     {
-                        await bot.SendTextMessage(it.Key, content, false);
-                        Logger.L.Info($"Birthday message sent to {it.Key} : {content}");
+                        await bot.SendTextMessage(id, content, false);
+                        Logger.L.Info($"Birthday message sent to {id} : {content}");
                     }
 
                     await Task.Delay(1000);
@@ -68,9 +88,22 @@ public class Alarm
             }
             catch (Exception e)
             {
-                Logger.L.Error("Birthday Job Error.");
-                Logger.L.Error(e.Message);
+                Logger.L.Error($"Birthday Job Error: {e.Message}");
+                Logger.L.Error(e.StackTrace);
             }
         }
+    }
+    
+}
+
+public class AlarmConfig
+{
+    public Dictionary<string, ChannelConfig> Channels = new();
+    
+    public class ChannelConfig
+    {
+        public string ChannelId { get; set; }
+        public string GroupId { get; set; }
+        public bool AlarmBirthday { get; set; }
     }
 }

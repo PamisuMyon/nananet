@@ -4,8 +4,6 @@ using Nananet.Core;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
 using Nananet.Core.Utils;
-using Newtonsoft.Json.Linq;
-using RestSharp;
 
 namespace Nananet.App.Nana.Functions.Picture;
 
@@ -16,12 +14,12 @@ public struct PicCommandHints
     public string SendErrorHint { get; set; }
 }
 
-public abstract class SimplePictureCommand : Command
+public abstract class PictureCommand : Command
 {
     protected static int _timeout => 8000;
     protected abstract Regex[] Regexes { get; }
 
-    protected List<SimplePictureRequester> PictureRequesters { get; } = new();
+    protected List<PictureRequester> PictureRequesters { get; } = new();
 
     protected abstract PicCommandHints Hints { get; }
 
@@ -32,11 +30,7 @@ public abstract class SimplePictureCommand : Command
     public override async Task Init(IBot bot)
     {
         await base.Init(bot);
-        if (bot.Config.Extra != null)
-        {
-            if (bot.Config.Extra.ContainsKey(""))
-                _downloadFile = (bool)bot.Config.Extra["downloadFile"];
-        }
+        bot.Config.TryGetExtraValue("downloadFile", out _downloadFile);
     }
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
@@ -53,7 +47,7 @@ public abstract class SimplePictureCommand : Command
         _temporarySpam.Record(input.AuthorId);
         var hintMsgId = await bot.ReplyTextMessage(input, Hints.DownloadingHint);
 
-        var path = await PictureRequesters.RandomElem().Execute();
+        var path = await PictureRequesters.RandomElem().Execute(_timeout, _downloadFile);
         string? error = null;
         if (path != null)
         {
@@ -64,7 +58,7 @@ public abstract class SimplePictureCommand : Command
                 imgMsgId = await bot.ReplyServerFileMessage(input, path, FileType.Image);
             FileUtil.DeleteUnreliably(path);
             if (imgMsgId == null)
-                error = Hints.DownloadErrorHint;
+                error = Hints.SendErrorHint;
             else
                 await ActionLog.Log(Name, input, path);
         }
@@ -91,59 +85,7 @@ public abstract class SimplePictureCommand : Command
     }
 }
 
-public class SimplePictureRequester
-{
-    private readonly string _url;
-    private readonly int _timeout;
-    private readonly bool _downloadFile;
-    public delegate string ParseResponse(string content);
-    private readonly ParseResponse _getFileUrlFromResponse;
-
-    public SimplePictureRequester(string url, int timeout, bool downloadFile, ParseResponse getFileUrlFromResponse)
-    {
-        _url = url;
-        _timeout = timeout;
-        _downloadFile = downloadFile;
-        _getFileUrlFromResponse = getFileUrlFromResponse;
-    }
-
-    public async Task<string?> Execute()
-    {
-        var options = new RestClientOptions(_url)
-        {
-            MaxTimeout = _timeout,
-        };
-        var client = new RestClient(options);
-        
-        var request = new RestRequest();
-        Logger.L.Debug($"Requesting: {_url}");
-        try
-        {
-            var response = await client.ExecuteGetAsync(request);
-            if (response.Content == null) return null;
-            var url = _getFileUrlFromResponse(response.Content);
-            if (!_downloadFile)
-                return url;
-            
-            var fileName = url.Split("/")[^1];
-            var dir = FileUtil.PathFromBase("cache/images");
-            
-            Logger.L.Debug($"Downloading file: {url}");
-            await NetUtil.DownloadFile(url, dir, fileName);
-            var path = Path.Combine(dir, fileName);
-            Logger.L.Debug($"File downloaded: {path}" );
-            return path;
-        }
-        catch (Exception e)
-        {
-            Logger.L.Error(e.Message);
-        }
-
-        return null;
-    }
-}
-
-public class KittyCommand : SimplePictureCommand
+public class KittyCommand : PictureCommand
 {
     public override string Name => "kitty";
 
@@ -159,7 +101,7 @@ public class KittyCommand : SimplePictureCommand
     {
         DownloadingHint = "正在检索猫猫数据库，请博士耐心等待...",
         DownloadErrorHint = "图片被猫猫吞噬了，请博士稍后再试。",
-        SendErrorHint = "图片发送过程中发生致命错误，您的开水壶已被炸毁。"
+        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
     };
 
     protected override PicCommandHints Hints => _hints;
@@ -167,25 +109,13 @@ public class KittyCommand : SimplePictureCommand
     public override async Task Init(IBot bot)
     {
         await base.Init(bot);
-        PictureRequesters.Add(
-            new SimplePictureRequester("https://api.thecatapi.com/v1/images/search",
-                _timeout, _downloadFile, content =>
-                {
-                    var ja = JArray.Parse(content);
-                    return ja[0]["url"]!.ToString();
-                }));
-        
-        PictureRequesters.Add(
-            new SimplePictureRequester("https://aws.random.cat/meow",
-                _timeout, _downloadFile, content =>
-                {
-                    var jo = JObject.Parse(content!);
-                    return jo["file"]!.ToString();
-                }));
+        if (PictureRequesters.Count != 0) return;
+        PictureRequesters.Add(PictureRequesterStore.TheCatApi);
+        PictureRequesters.Add(PictureRequesterStore.AwsRandomCat);
     }
 }
 
-public class DogeCommand : SimplePictureCommand
+public class DogeCommand : PictureCommand
 {
     public override string Name => "doge";
 
@@ -201,7 +131,7 @@ public class DogeCommand : SimplePictureCommand
     {
         DownloadingHint = "正在检索狗狗数据库，请博士耐心等待...",
         DownloadErrorHint = "图片被狗狗吞噬了，请博士稍后再试。",
-        SendErrorHint = "图片发送过程中发生致命错误，您的开水壶已被炸毁。"
+        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
     };
 
     protected override PicCommandHints Hints => _hints;
@@ -209,13 +139,98 @@ public class DogeCommand : SimplePictureCommand
     public override async Task Init(IBot bot)
     {
         await base.Init(bot);
-        PictureRequesters.Add(
-            new SimplePictureRequester("https://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true",
-                _timeout, _downloadFile, content =>
-                {
-                    var ja = JArray.Parse(content!);
-                    return ja[0].ToString();
-                }));
+        if (PictureRequesters.Count != 0) return;
+        PictureRequesters.Add(PictureRequesterStore.Shibe);
+    }
+    
+}
+
+public class QuackCommand : PictureCommand
+{
+    public override string Name => "doge";
+
+    private Regex[] _regexes =
+    {
+        new("来(点|电|份|张)鸭(鸭|图)"),
+        new("來(點|電|份|張)鴨(鴨|圖)")
+    };
+
+    protected override Regex[] Regexes => _regexes;
+
+    private PicCommandHints _hints = new()
+    {
+        DownloadingHint = "正在检索鸭鸭数据库，请博士耐心等待...",
+        DownloadErrorHint = "图片被鸭鸭吞噬了，请博士稍后再试。",
+        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
+    };
+
+    protected override PicCommandHints Hints => _hints;
+
+    public override async Task Init(IBot bot)
+    {
+        await base.Init(bot);
+        if (PictureRequesters.Count != 0) return;
+        PictureRequesters.Add(PictureRequesterStore.RandomDuck);
+    }
+    
+}
+
+public class FoxCommand : PictureCommand
+{
+    public override string Name => "doge";
+
+    private Regex[] _regexes =
+    {
+        new("来(点|电|份|张)小?狐狸?(狐|图)"),
+        new("來(點|電|份|張)小?狐狸?(狐|圖)")
+    };
+
+    protected override Regex[] Regexes => _regexes;
+
+    private PicCommandHints _hints = new()
+    {
+        DownloadingHint = "正在检索小狐狸数据库，请博士耐心等待...",
+        DownloadErrorHint = "图片被小狐狸吞噬了，请博士稍后再试。",
+        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
+    };
+
+    protected override PicCommandHints Hints => _hints;
+
+    public override async Task Init(IBot bot)
+    {
+        await base.Init(bot);
+        if (PictureRequesters.Count != 0) return;
+        PictureRequesters.Add(PictureRequesterStore.RandomFox);
+    }
+    
+}
+
+public class CatBoyCommand : PictureCommand
+{
+    public override string Name => "catboy";
+
+    private Regex[] _regexes =
+    {
+        new("来(点|电|份|张)猫猫?男孩?子?图?"),
+        new("來(點|電|份|張)貓貓?男孩?子?圖?")
+    };
+
+    protected override Regex[] Regexes => _regexes;
+
+    private PicCommandHints _hints = new()
+    {
+        DownloadingHint = "正在检索猫猫数据库，请博士耐心等待...",
+        DownloadErrorHint = "图片被猫猫吞噬了，请博士稍后再试。",
+        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
+    };
+
+    protected override PicCommandHints Hints => _hints;
+
+    public override async Task Init(IBot bot)
+    {
+        await base.Init(bot);
+        if (PictureRequesters.Count != 0) return;
+        PictureRequesters.Add(PictureRequesterStore.RandomCatBoy);
     }
     
 }
