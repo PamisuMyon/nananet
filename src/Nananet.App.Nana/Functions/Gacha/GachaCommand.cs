@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using MongoDB.Entities;
+using Nananet.App.Nana.Models;
 using Nananet.App.Nana.Models.Ak;
 using Nananet.Core;
 using Nananet.Core.Commands;
@@ -53,6 +54,7 @@ public class GachaCommand : Command
         reply += $"\n距离上次抽到6★: {roll.waterLevel}次寻访";
 
         await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
 

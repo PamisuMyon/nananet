@@ -30,6 +30,7 @@ public class HelpCommand : Command
     {
         var reply = Sentence.GetOne(_keyHelp);
         await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
     

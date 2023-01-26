@@ -1,4 +1,4 @@
-﻿namespace Nananet.App.Nana.Storage;
+﻿namespace Nananet.App.Nana.Commons;
 
 public static class Constants
 {

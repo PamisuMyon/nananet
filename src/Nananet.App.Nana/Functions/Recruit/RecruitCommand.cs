@@ -37,6 +37,7 @@ public class RecruitCommand : Command
         else
             reply = await DoTextRecruit(input.Content);
         await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
 
@@ -60,9 +61,11 @@ public class RecruitCommand : Command
                 tags.Add(word);
             }
         }
-        if (tags.Count == 0) {
+        if (tags.Count == 0) 
             return Sentence.GetOne("ocrError")!;
-        }
+        if (tags.Count > 7)    // hard-code
+            // 剔除多余的tag 
+            tags = tags.Take(10).ToList();
 
         // 根据tag计算
         var results = await Recruiter.Instance.Calculate(tags);
@@ -92,9 +95,11 @@ public class RecruitCommand : Command
                 split.RemoveAt(i);
             }
         }
-        if (split.Count == 0) {
+        if (split.Count == 0) 
             return Sentence.GetOne("recruitNoTagError");
-        }
+        if (split.Count > 7) // hard-code
+            return Sentence.GetOne("recruitToManyTagsError");
+            
         // 根据tag计算
         var results = await Recruiter.Instance.Calculate(split);
         var reply = "🔍" + Recruiter.Instance.BeautifyRecruitResults(results);

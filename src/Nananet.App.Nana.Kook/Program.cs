@@ -5,6 +5,7 @@ using Nananet.App.Nana.Functions.Help;
 using Nananet.App.Nana.Functions.Picture;
 using Nananet.App.Nana.Functions.Recruit;
 using Nananet.App.Nana.Functions.System;
+using Nananet.App.Nana.Functions.Wiki;
 using Nananet.App.Nana.Kook;
 using Nananet.App.Nana.Schedulers;
 using Nananet.App.Nana.Storage;
@@ -28,6 +29,7 @@ var options = new InitOptions
         new QuackCommand(),
         new FoxCommand(),
         new RecruitCommand(),
+        new AkFuzzyCommand(),
         new HelpCommand(),
         new RefreshCacheCommand(),
         new AlarmSettingsCommand(),

@@ -1,5 +1,7 @@
-﻿using MongoDB.Entities;
-using Newtonsoft.Json.Linq;
+﻿using MongoDB.Bson;
+using MongoDB.Entities;
+using Nananet.App.Nana.Storage;
+using Nananet.Core.Utils;
 
 namespace Nananet.App.Nana.Models.Ak;
 
@@ -168,53 +170,63 @@ public class UnlockCondition
 [Collection("characters")]
 public class Character : Entity
 {
-    // public string CharID { get; set; }
+    public string CharID { get; set; }
     // public List<AllSkillLvlup> AllSkillLvlup { get; set; }
-    // public string Appellation { get; set; }
-    // public bool CanUseGeneralPotentialItem { get; set; }
-    // public string Description { get; set; }
-    // public string DisplayNumber { get; set; }
+    public string Appellation { get; set; }
+    public bool CanUseGeneralPotentialItem { get; set; }
+    public string Description { get; set; }
+    public string DisplayNumber { get; set; }
     // public List<FavorKeyFrame> FavorKeyFrames { get; set; }
-    // public object GroupId { get; set; }
-    // public bool IsNotObtainable { get; set; }
-    // public bool IsSpChar { get; set; }
-    // public string ItemDesc { get; set; }
-    // public string ItemObtainApproach { get; set; }
-    // public string ItemUsage { get; set; }
-    // public int MaxPotentialLevel { get; set; }
+    public object GroupId { get; set; }
+    public bool IsNotObtainable { get; set; }
+    public bool IsSpChar { get; set; }
+    public string ItemDesc { get; set; }
+    public string ItemObtainApproach { get; set; }
+    public string ItemUsage { get; set; }
+    public int MaxPotentialLevel { get; set; }
     public string Name { get; set; }
-    // public string NationId { get; set; }
+    public string NationId { get; set; }
     // public List<Phase> Phases { get; set; }
-    // public string Position { get; set; }
-    // public string PotentialItemId { get; set; }
+    public string Position { get; set; }
+    public string PotentialItemId { get; set; }
     // public List<PotentialRank> PotentialRanks { get; set; }
     public string Profession { get; set; }
     public int Rarity { get; set; }
     // public List<Skill> Skills { get; set; }
-    // public string SubProfessionId { get; set; }
+    public string SubProfessionId { get; set; }
     // public List<string> TagList { get; set; }
     // public List<Talent> Talents { get; set; }
-    // public object TeamId { get; set; }
-    // public string TokenKey { get; set; }
+    public string TeamId { get; set; }
+    public string TokenKey { get; set; }
     // public Trait Trait { get; set; }
 
 
     public static Task<List<Character>> FindByRecruit(int? rarity, string? position, string? profession, List<string>? tags)
     {
-        var query = new JObject();
-        query["canRecruit"] = true;
+        var query = new BsonDocument
+        {
+            { "canRecruit", true }
+        };
         if (rarity != null)
-            query["rarity"] = rarity.Value;
+            query.Add("rarity", rarity.Value);
         if (position != null)
-            query["position"] = position;
+            query.Add("position", position);
         if (profession != null)
-            query["profession"] = profession;
-        if (tags != null)
-            query["tagList"] = new JObject
+            query.Add("profession", profession);
+        if (tags != null && tags.Count > 0)
+            query.Add("tagList", new BsonDocument
             {
-                ["$all"] = JArray.FromObject(tags) 
-            };
-        return DB.Find<Character>().MatchString(query.ToString()).ExecuteAsync();
+                { "$all", new BsonArray(tags) }
+            });
+
+        Logger.L.Debug(query.ToString());
+        return DB.Find<Character>().Match(query).ExecuteAsync();
     }
+
+    public static Task<Character?> FindOneByName(string name, bool fuzzy)
+    {
+        return DbUtil.FindOneByField<Character>("name", name, fuzzy, true);
+    }
+    
     
 }

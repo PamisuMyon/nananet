@@ -187,7 +187,8 @@ public class Recruiter
                     continue;
 
                 // 执行查询
-                var chars = await Character.FindByRecruit(rarities.GetElemSafe(0), positions.GetElemSafe(0)!, classes.GetElemSafe(0)!, tags);
+                int? paramRarity = rarities.Count > 0 ? rarities[0] : null;
+                var chars = await Character.FindByRecruit(paramRarity, positions.GetElemSafe(0)!, classes.GetElemSafe(0)!, tags);
                 // 期望效果为仅保留必出、小车及4星以上情况
                 // 如果结果中包含3、2星则排除
                 var shouldExclude = false;

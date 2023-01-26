@@ -23,9 +23,9 @@ public static class CommonUtil
         return left;
     }
 
-    public static T? GetElemSafe<T>(this IList<T> list, int index)
+    public static T? GetElemSafe<T>(this IList<T> list, int index, T? defaultValue = default)
     {
-        if (index < 0 || index > list.Count - 1) return default;
+        if (index < 0 || index > list.Count - 1) return defaultValue;
         return list[index];
     }
 
@@ -88,5 +88,9 @@ public static class CommonUtil
         }
         return results;
     }
+
+    public static bool NullOrEmpty(this string? it) => string.IsNullOrEmpty(it);
+
+    public static bool NotNullNorEmpty(this string? it) => !string.IsNullOrEmpty(it);
     
 }

@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using Nananet.App.Nana.Commons;
 using Nananet.App.Nana.Models;
 using Nananet.App.Nana.Schedulers;
-using Nananet.App.Nana.Storage;
 using Nananet.Core;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
@@ -32,7 +32,7 @@ public abstract class SystemCommand : Command
         {
             if (!regex.IsMatch(input.Content)) continue;
             // 如果允许，先检查用户是否符合平台角色，如果不符合，再检查用户配置表
-            bool roleCheck = false;
+            var roleCheck = false;
             if (CheckPlatformRole && input.Member.HasAnyRole(PlatformRoles))
                 roleCheck = true;
             else
@@ -72,7 +72,9 @@ public class RefreshCacheCommand : SystemCommand
     public override async Task<CommandResult> Execute(IBot bot, Message input, CommandTestInfo testInfo)
     {
         await bot.Refresh();
-        await bot.ReplyTextMessage(input, "缓存已更新，喵喵喵~");
+        const string reply = "缓存已更新，喵喵喵~";
+        await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
 }
@@ -119,7 +121,9 @@ public class AlarmSettingsCommand : SystemCommand
         channelConfig.GroupId = input.GroupId;
         await MiscConfig.Upsert(configName, config);
 
-        await bot.ReplyTextMessage(input, toggleOn ? "干员生日提醒已开启" : "干员生日提醒已关闭");
+        var reply = toggleOn ? "干员生日提醒已开启" : "干员生日提醒已关闭";
+        await bot.ReplyTextMessage(input, reply);
+        await ActionLog.Log(Name, input, reply);
         return Executed;
     }
     

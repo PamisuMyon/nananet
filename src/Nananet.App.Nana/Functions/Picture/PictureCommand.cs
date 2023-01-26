@@ -111,7 +111,7 @@ public class KittyCommand : PictureCommand
         await base.Init(bot);
         if (PictureRequesters.Count != 0) return;
         PictureRequesters.Add(PictureRequesterStore.TheCatApi);
-        PictureRequesters.Add(PictureRequesterStore.AwsRandomCat);
+        // PictureRequesters.Add(PictureRequesterStore.AwsRandomCat);
     }
 }
 

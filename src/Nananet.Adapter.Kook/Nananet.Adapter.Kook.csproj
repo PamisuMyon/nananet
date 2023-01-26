@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Kook.Net" Version="0.0.43.1-alpha" />
+      <PackageReference Include="Kook.Net" Version="0.2.3" />
     </ItemGroup>
 
 </Project>

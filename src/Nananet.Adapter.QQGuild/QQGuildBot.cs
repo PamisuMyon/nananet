@@ -242,7 +242,7 @@ public class QQGuildBot : IBot
     {
         Logger.L.Debug($"Sending image url message to {targetId}: \n {url}");
         // hard-code 重试次数
-        var retryTimes = 3;
+        var retryTimes = 10;    // TODO TEMP
         do
         {
             try
