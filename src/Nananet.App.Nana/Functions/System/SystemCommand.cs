@@ -118,7 +118,7 @@ public class AlarmSettingsCommand : SystemCommand
         }
         channelConfig.AlarmBirthday = toggleOn;
         channelConfig.ChannelId = input.ChannelId;
-        channelConfig.GroupId = input.GroupId;
+        channelConfig.GuildId = input.GuildId;
         await MiscConfig.Upsert(configName, config);
 
         var reply = toggleOn ? "干员生日提醒已开启" : "干员生日提醒已关闭";

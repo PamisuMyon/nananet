@@ -103,7 +103,7 @@ public class AlarmConfig
     public class ChannelConfig
     {
         public string ChannelId { get; set; }
-        public string GroupId { get; set; }
+        public string GuildId { get; set; }
         public bool AlarmBirthday { get; set; }
     }
 }

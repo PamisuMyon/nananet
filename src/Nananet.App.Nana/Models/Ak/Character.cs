@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Entities;
 using Nananet.App.Nana.Storage;
 using Nananet.Core.Utils;
@@ -85,6 +86,7 @@ public class Data
     public bool LevitateImmune { get; set; }
 }
 
+[BsonNoId]
 public class EvolveCost
 {
     public string Id { get; set; }
@@ -98,6 +100,7 @@ public class FavorKeyFrame
     public Data Data { get; set; }
 }
 
+[BsonNoId]
 public class LevelUpCost
 {
     public string Id { get; set; }
@@ -112,6 +115,7 @@ public class LevelUpCostCond
     public List<LevelUpCost> LevelUpCost { get; set; }
 }
 
+[BsonNoId]
 public class LvlUpCost
 {
     public string Id { get; set; }
@@ -124,7 +128,7 @@ public class Phase
     public string CharacterPrefabKey { get; set; }
     public string RangeId { get; set; }
     public int MaxLevel { get; set; }
-    public List<AttributesKeyFrame> AttributesKeyFrames { get; set; }
+    // public List<AttributesKeyFrame> AttributesKeyFrames { get; set; } // TODO Serialization Error
     public List<EvolveCost> EvolveCost { get; set; }
 }
 
@@ -171,13 +175,13 @@ public class UnlockCondition
 public class Character : Entity
 {
     public string CharID { get; set; }
-    // public List<AllSkillLvlup> AllSkillLvlup { get; set; }
+    public List<AllSkillLvlup> AllSkillLvlup { get; set; }
     public string Appellation { get; set; }
     public bool CanUseGeneralPotentialItem { get; set; }
     public string Description { get; set; }
     public string DisplayNumber { get; set; }
-    // public List<FavorKeyFrame> FavorKeyFrames { get; set; }
-    public object GroupId { get; set; }
+    public List<FavorKeyFrame> FavorKeyFrames { get; set; }
+    public string GroupId { get; set; }
     public bool IsNotObtainable { get; set; }
     public bool IsSpChar { get; set; }
     public string ItemDesc { get; set; }
@@ -186,19 +190,19 @@ public class Character : Entity
     public int MaxPotentialLevel { get; set; }
     public string Name { get; set; }
     public string NationId { get; set; }
-    // public List<Phase> Phases { get; set; }
+    public List<Phase>? Phases { get; set; }
     public string Position { get; set; }
     public string PotentialItemId { get; set; }
-    // public List<PotentialRank> PotentialRanks { get; set; }
+    public List<PotentialRank> PotentialRanks { get; set; }
     public string Profession { get; set; }
     public int Rarity { get; set; }
-    // public List<Skill> Skills { get; set; }
+    public List<Skill> Skills { get; set; }
     public string SubProfessionId { get; set; }
-    // public List<string> TagList { get; set; }
-    // public List<Talent> Talents { get; set; }
+    public List<string> TagList { get; set; }
+    public List<Talent> Talents { get; set; }
     public string TeamId { get; set; }
     public string TokenKey { get; set; }
-    // public Trait Trait { get; set; }
+    public Trait Trait { get; set; }
 
 
     public static Task<List<Character>> FindByRecruit(int? rarity, string? position, string? profession, List<string>? tags)

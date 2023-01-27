@@ -22,6 +22,7 @@ public static class Converter
             if (input.Channel is SocketTextChannel textChannel)
             {
                 msg.ChannelId = textChannel.Id.ToString();
+                msg.GuildId = textChannel.Guild.Id.ToString();
             }
             msg.Origin = input;
         }

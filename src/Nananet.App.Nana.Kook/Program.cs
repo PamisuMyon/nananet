@@ -20,7 +20,6 @@ var options = new InitOptions
     Storage = new MongoStorage("kookAppSettings", "kookBotConfig"),
     Commands = new List<Command>
     {
-        new DiceCommand(),
         new GachaCommand(),
         new BukeyiseseCommand(),
         new CatBoyCommand(),
@@ -29,8 +28,13 @@ var options = new InitOptions
         new QuackCommand(),
         new FoxCommand(),
         new RecruitCommand(),
-        new AkFuzzyCommand(),
+        new DiceCommand(),
         new HelpCommand(),
+        new AkOperatorEvolveCommand(),
+        new AkOperatorSkillMasteryCommand(),
+        new AkBirthdayOperatorCommand(),
+        new AkOperatorBirthdayCommand(),
+        new AkFuzzyCommand(),
         new RefreshCacheCommand(),
         new AlarmSettingsCommand(),
         new ChatCommand(),

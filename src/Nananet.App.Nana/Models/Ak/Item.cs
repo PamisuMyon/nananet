@@ -36,7 +36,7 @@ public class Item : Entity
     
     public static Task<Item?> FindOneById(string itemId)
     {
-        return DbUtil.FindOneByField<Item>("ItemId", itemId);
+        return DbUtil.FindOneByField<Item>("itemId", itemId);
     }
     
     public static Task<Item?> FindOneByName(string name, bool fuzzy)
