@@ -11,9 +11,6 @@ using Nananet.App.Nana.Schedulers;
 using Nananet.App.Nana.Storage;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
-using Nananet.Core.Utils;
-
-Logger.L.LogLevel = LogLevel.Debug;
 
 var options = new InitOptions
 {

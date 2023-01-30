@@ -44,7 +44,7 @@ public class Alarm
         job.JobDataMap.Add("bot", _bot);
 
         var trigger = TriggerBuilder.Create()
-            .WithCronSchedule("22 0 0 * * ?")
+            .WithCronSchedule("02 0 0 * * ?")
             .Build();
 
         await _scheduler.ScheduleJob(job, trigger);
@@ -71,7 +71,7 @@ public class Alarm
                 var content = await Handbook.GetBirthdayMessageSimple(DateTime.Now);
                 if (string.IsNullOrEmpty(content))
                 {
-                    Logger.L.Debug("No birthday message for now.");
+                    Logger.L.Info("No birthday message for now.");
                     return;
                 }
 

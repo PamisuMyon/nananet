@@ -79,13 +79,13 @@ public class ChatCommand : Command
             if (dict != null && dict.ContainsKey(bot.AppSettings.Platform))
             {
                 await bot.ReplyServerFileMessage(input, dict[bot.AppSettings.Platform], FileType.Image);
-                await ActionLog.Log(Name, input, reply);
+                await ActionLog.Log(Name, bot, input, reply);
             }
             return;
         }
 
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
     }
     
 }

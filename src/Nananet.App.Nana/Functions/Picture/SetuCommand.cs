@@ -127,7 +127,7 @@ public class SetuCommand : Command
                 if (string.IsNullOrEmpty(imgMsgId))
                     error = _hints.SendErrorHint;
                 else
-                    await ActionLog.Log(Name, input, serverImage.Url);
+                    await ActionLog.Log(Name, bot, input, serverImage.Url);
             }
             else
             {

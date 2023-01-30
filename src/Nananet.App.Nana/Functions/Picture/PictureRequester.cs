@@ -33,7 +33,7 @@ public class PictureRequester
         var client = new RestClient(options);
 
         var request = new RestRequest();
-        Logger.L.Debug($"Requesting: {Url}");
+        Logger.L.Info($"Requesting: {Url}");
         do
         {
             try
@@ -52,10 +52,10 @@ public class PictureRequester
                 var fileName = url.Split("/")[^1];
                 var dir = FileUtil.PathFromBase("cache/images");
 
-                Logger.L.Debug($"Downloading file: {url}");
+                Logger.L.Info($"Downloading file: {url}");
                 await NetUtil.DownloadFile(url, dir, fileName);
                 var path = Path.Combine(dir, fileName);
-                Logger.L.Debug($"File downloaded: {path}");
+                Logger.L.Info($"File downloaded: {path}");
                 return path;
             }
             catch (Exception e)

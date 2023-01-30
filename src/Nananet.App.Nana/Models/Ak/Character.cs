@@ -223,7 +223,6 @@ public class Character : Entity
                 { "$all", new BsonArray(tags) }
             });
 
-        Logger.L.Debug(query.ToString());
         return DB.Find<Character>().Match(query).ExecuteAsync();
     }
 

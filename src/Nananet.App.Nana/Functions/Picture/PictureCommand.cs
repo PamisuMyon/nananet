@@ -60,7 +60,7 @@ public abstract class PictureCommand : Command
             if (imgMsgId == null)
                 error = Hints.SendErrorHint;
             else
-                await ActionLog.Log(Name, input, path);
+                await ActionLog.Log(Name, bot, input, path);
         }
         else
         {
@@ -71,13 +71,12 @@ public abstract class PictureCommand : Command
         if (hintMsgId != null)
         {
             var b = await bot.DeleteMessage(input.ChannelId, hintMsgId);
-            Logger.L.Debug($"Delete message: {b}  id {hintMsgId}");
         }
 
         if (error != null)
         {
             await bot.ReplyTextMessage(input, error);
-            await ActionLog.Log(Name, input, error);
+            await ActionLog.Log(Name, bot, input, error);
         }
 
         _temporarySpam.Reset(input.AuthorId);

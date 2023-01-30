@@ -54,7 +54,7 @@ public class GachaCommand : Command
         reply += $"\n距离上次抽到6★: {roll.waterLevel}次寻访";
 
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
         return Executed;
     }
 

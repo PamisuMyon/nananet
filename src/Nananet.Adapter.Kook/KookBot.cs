@@ -62,7 +62,7 @@ public class KookBot : IBot
 
             _mentionRegex = new Regex($"({Regex.Escape(user.KMarkdownMention)}|[@＠]{_me.NickName}#{user.IdentifyNumber}|[@＠]{_me.NickName})",
                 RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            Logger.L.Debug($"Mention Regex: {_mentionRegex}");
+            Logger.L.Info($"Mention Regex: {_mentionRegex}");
             await Refresh();
         };
         _client.MessageReceived += OnMessageReceived;
@@ -100,7 +100,7 @@ public class KookBot : IBot
     {
         if (_defender.IsBlocked(input.AuthorId))
         {
-            Logger.L.Debug($"Message form blocked user: {input.AuthorId}");
+            Logger.L.Info($"Message form blocked user: {input.AuthorId}");
             return;
         }
 
@@ -111,13 +111,11 @@ public class KookBot : IBot
         if (input.IsPersonal)
         {
             isTriggered = true;
-            Logger.L.Debug($"Personal message received: {input}");
+            Logger.L.Info($"Personal message received: {input}");
         }
         else
         {
             // if (!Config.HasChannel(input.ChannelId)) return;
-            Logger.L.Debug($"Channel message received: {input}");
-
             if (isReplyMe)
             {
                 isTriggered = true;
@@ -129,6 +127,9 @@ public class KookBot : IBot
                 else if (_commandRegex.IsMatch(input.Content))
                     isChannelCommand = true;
             }
+            
+            if (isTriggered || isChannelCommand)
+                Logger.L.Info($"Channel message received: {input}");
         }
 
         if (!isTriggered && !isChannelCommand) return;
@@ -143,7 +144,7 @@ public class KookBot : IBot
 
             var command = _commands.GetElemSafe(testInfo.Value.CommandIndex);
             if (command == null) return;
-            Logger.L.Debug($"Command executing: {command.Name}");
+            Logger.L.Info($"Command executing: {command.Name}");
             var result = await command.Execute(this, input, testInfo.Value);
             if (result.Success)
             {

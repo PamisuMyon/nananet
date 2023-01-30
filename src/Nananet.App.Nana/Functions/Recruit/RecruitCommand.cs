@@ -37,7 +37,7 @@ public class RecruitCommand : Command
         else
             reply = await DoTextRecruit(input.Content);
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
         return Executed;
     }
 

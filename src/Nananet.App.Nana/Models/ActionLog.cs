@@ -1,4 +1,5 @@
 ﻿using MongoDB.Entities;
+using Nananet.Core;
 using Nananet.Core.Models;
 
 namespace Nananet.App.Nana.Models;
@@ -6,6 +7,7 @@ namespace Nananet.App.Nana.Models;
 [Collection("action-logs")]
 public class ActionLog : Entity, ICreatedOn
 {
+    public string Platform { get; set; }
     public string Command { get; set; }
     public string Content { get; set; }
     public string Reply { get; set; }
@@ -16,10 +18,11 @@ public class ActionLog : Entity, ICreatedOn
     public bool IsPersonal { get; set; }
     public DateTime CreatedOn { get; set; }
 
-    public static async Task Log(string command, Message input, string? reply)
+    public static async Task Log(string command, IBot bot, Message input, string? reply)
     {
         var log = new ActionLog
         {
+            Platform = bot.AppSettings.Platform,
             Command = command,
             Reply = reply!,
             UserId = input.AuthorId,

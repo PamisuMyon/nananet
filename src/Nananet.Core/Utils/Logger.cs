@@ -1,4 +1,5 @@
 using System.Text;
+using NLog;
 
 namespace Nananet.Core.Utils;
 
@@ -15,18 +16,21 @@ public enum LogLevel
 public class Logger
 {
     protected static Logger s_instance = new Logger();
+    
     public static Logger L
     {
         get => s_instance;
         set => s_instance = value;
     }
 
-    protected LogLevel _logLevel = LogLevel.Error;
-    public LogLevel LogLevel
-    {
-        get => _logLevel;
-        set => _logLevel = value;
-    }
+    private readonly NLog.Logger _logger = LogManager.GetCurrentClassLogger();
+
+    // protected LogLevel _logLevel = LogLevel.Error;
+    // public LogLevel LogLevel
+    // {
+    //     get => _logLevel;
+    //     set => _logLevel = value;
+    // }
 
     protected StringBuilder Stamp(LogLevel logLevel = LogLevel.Disabled)
     {
@@ -35,12 +39,24 @@ public class Logger
         sb.Append($"[{logLevel.ToString()}]");
         return sb;
     }
-
+    
     public void Log(object? obj, LogLevel level = LogLevel.Debug)
     {
-        if (_logLevel > level)
-            return;
-        Console.WriteLine(Stamp(level).Append(obj));
+        _logger.Log(ToNLogLevel(level), obj);
+    }
+
+    private static NLog.LogLevel ToNLogLevel(LogLevel level)
+    {
+        return level switch
+        {
+            LogLevel.Verbose => NLog.LogLevel.Trace,
+            LogLevel.Debug => NLog.LogLevel.Debug,
+            LogLevel.Info => NLog.LogLevel.Info,
+            LogLevel.Warn => NLog.LogLevel.Warn,
+            LogLevel.Error => NLog.LogLevel.Error,
+            LogLevel.Disabled => NLog.LogLevel.Off,
+            _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+        };
     }
 
     public void Verbose(object? obj) => Log(obj, LogLevel.Verbose);

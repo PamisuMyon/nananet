@@ -74,7 +74,7 @@ public class RefreshCacheCommand : SystemCommand
         await bot.Refresh();
         const string reply = "缓存已更新，喵喵喵~";
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
         return Executed;
     }
 }
@@ -123,7 +123,7 @@ public class AlarmSettingsCommand : SystemCommand
 
         var reply = toggleOn ? "干员生日提醒已开启" : "干员生日提醒已关闭";
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
         return Executed;
     }
     

@@ -58,7 +58,7 @@ public class AkFuzzyCommand : Command
     {
         if (testInfo.Data is not string reply) return Failed;
         await bot.ReplyTextMessage(input, reply);
-        await ActionLog.Log(Name, input, reply);
+        await ActionLog.Log(Name, bot, input, reply);
         return Executed;
     }
 }

@@ -113,7 +113,7 @@ public class QQGuildBot : IBot
         if (input.Author.IsBot) return;
 
         var msg = Converter.FromMessage(input);
-        Logger.L.Debug($"OnMessageReceived: {input}");
+        Logger.L.Info($"OnMessageReceived: {input}");
         Task.Run(async () => await ProcessMessage(msg));
     }
 
@@ -121,7 +121,7 @@ public class QQGuildBot : IBot
     {
         if (_defender.IsBlocked(input.AuthorId))
         {
-            Logger.L.Debug($"Message form blocked user: {input.AuthorId}");
+            Logger.L.Info($"Message form blocked user: {input.AuthorId}");
             return;
         }
         
@@ -132,12 +132,12 @@ public class QQGuildBot : IBot
         if (input.IsPersonal)
         {
             isTriggered = true;
-            Logger.L.Debug($"Direct message received: {input}");
+            Logger.L.Info($"Direct message received: {input}");
         }
         else
         {
             // if (!Config.HasChannel(input.ChannelId)) return;
-            Logger.L.Debug($"Channel message received: {input}");
+            Logger.L.Info($"Channel message received: {input}");
 
             if (isReplyMe)
             {
@@ -170,7 +170,7 @@ public class QQGuildBot : IBot
 
             var command = _commands.GetElemSafe(testInfo.Value.CommandIndex);
             if (command == null) return;
-            Logger.L.Debug($"Command executing: {command.Name}");
+            Logger.L.Info($"Command executing: {command.Name}");
             var result = await command.Execute(this, input, testInfo.Value);
             if (result.Success)
             {
@@ -204,7 +204,7 @@ public class QQGuildBot : IBot
 
     public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
-        Logger.L.Debug($"Sending text message to {targetId}: \n {content}");
+        Logger.L.Info($"Sending text message to {targetId}: \n {content}");
         try
         {
             var result = await _qChannelApi.GetMessageApi().SendTextMessageAsync(targetId, content, referenceId ?? "");
@@ -240,7 +240,7 @@ public class QQGuildBot : IBot
 
     public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        Logger.L.Debug($"Sending image url message to {targetId}: \n {url}");
+        Logger.L.Info($"Sending image url message to {targetId}: \n {url}");
         // hard-code 重试次数
         var retryTimes = 10;    // TODO TEMP
         do
@@ -272,7 +272,7 @@ public class QQGuildBot : IBot
         // 公域机器人暂不支持撤回消息
         // https://bot.q.qq.com/wiki/develop/api/openapi/message/delete_message.html
         if (!_appSettings.IsPrivate) return false;
-        Logger.L.Debug($"Deleting message: {messageId}");
+        Logger.L.Info($"Deleting message: {messageId}");
         await _qChannelApi.GetMessageApi().RetractMessageAsync(targetId, messageId, true);
         return true;
     }
