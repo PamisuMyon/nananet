@@ -1,8 +1,10 @@
-﻿using MongoDB.Entities;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Entities;
 using Nananet.App.Nana.Storage;
 
 namespace Nananet.App.Nana.Models.Ak;
 
+[BsonNoId]
 public class Cost
 {
     public string Id { get; set; }

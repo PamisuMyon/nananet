@@ -23,6 +23,7 @@ public class QQGuildBot : IBot
     protected Regex _commandRegex = new("^[\\.。/]", RegexOptions.Multiline);
     protected Defender _defender;
     protected User _me;
+    protected bool _isInitialized = false;
 
     protected QQChannelApi _qChannelApi;
 
@@ -78,7 +79,8 @@ public class QQGuildBot : IBot
         channelBot.AuthenticationSuccess += async () =>
         {
             Logger.L.Info("Authentication Succeeded.");
-
+            if (_isInitialized) return;
+            
             var user = await _qChannelApi.GetUserApi().GetCurrentUserAsync();
             _me = Converter.FromUser(user);
             
@@ -87,6 +89,7 @@ public class QQGuildBot : IBot
             Logger.L.Info($"Mention Regex: {_mentionRegex}");
             
             await Refresh();
+            _isInitialized = true;
         };
         channelBot.OnError += ex => { Logger.L.Error($"Bot Error -> {ex.Message}"); };
         channelBot.ReceivedUserMessage += OnMessageReceived;
@@ -212,7 +215,7 @@ public class QQGuildBot : IBot
         }
         catch (Exception e)
         {
-            Logger.L.Error($"Sending image url error: {e.Message}");
+            Logger.L.Error($"Sending text error: {e.Message}");
             Logger.L.Error(e.StackTrace);
         }
         return null;
@@ -242,7 +245,7 @@ public class QQGuildBot : IBot
     {
         Logger.L.Info($"Sending image url message to {targetId}: \n {url}");
         // hard-code 重试次数
-        var retryTimes = 10;    // TODO TEMP
+        var retryTimes = 7;
         do
         {
             try

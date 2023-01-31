@@ -146,7 +146,7 @@ public class DogeCommand : PictureCommand
 
 public class QuackCommand : PictureCommand
 {
-    public override string Name => "doge";
+    public override string Name => "quack";
 
     private Regex[] _regexes =
     {
@@ -176,7 +176,7 @@ public class QuackCommand : PictureCommand
 
 public class FoxCommand : PictureCommand
 {
-    public override string Name => "doge";
+    public override string Name => "fox";
 
     private Regex[] _regexes =
     {

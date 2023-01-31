@@ -20,7 +20,7 @@ public class Enemy : Entity
     public string EnemyIndex { get; set; }
     public string EnemyLevel { get; set; }
     public string EnemyRace { get; set; }
-    public string EnemyTags { get; set; }
+    public string[] EnemyTags { get; set; }
     public bool HideInHandbook { get; set; }
     public bool IsInvalidKilled { get; set; }
     public string Name { get; set; }

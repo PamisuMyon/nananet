@@ -125,7 +125,7 @@ public class EnemySearcher : AkFuzzySearcher
         }
 
         reply += "\n";
-        var fourD = $"耐久{enemy.Endure} 攻击{enemy.Attack} 防御{enemy.Defence} 法抗${enemy.Resistance}";
+        var fourD = $"耐久{enemy.Endure} 攻击{enemy.Attack} 防御{enemy.Defence} 法抗{enemy.Resistance}";
         reply += fourD;
         reply += "\n";
         if (enemy.Description.NotNullNorEmpty())

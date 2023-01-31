@@ -5,21 +5,18 @@ using Nananet.App.Nana.Functions.Help;
 using Nananet.App.Nana.Functions.Picture;
 using Nananet.App.Nana.Functions.Recruit;
 using Nananet.App.Nana.Functions.System;
+using Nananet.App.Nana.Functions.Wiki;
 using Nananet.App.Nana.QQGuild;
 using Nananet.App.Nana.Schedulers;
 using Nananet.App.Nana.Storage;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
-using Nananet.Core.Utils;
-
-Logger.L.LogLevel = LogLevel.Debug;
 
 var options = new InitOptions
 {
     Storage = new MongoStorage("qqGuildAppSettings", "qqGuildBotConfig"),
     Commands = new List<Command>
     {
-        new DiceCommand(),
         new GachaCommand(),
         new BukeyiseseCommand(),
         new CatBoyCommand(),
@@ -28,7 +25,13 @@ var options = new InitOptions
         new QuackCommand(),
         new FoxCommand(),
         new RecruitCommand(),
+        new DiceCommand(),
         new HelpCommand("qqGuildHelp"),
+        new AkOperatorEvolveCommand(),
+        new AkOperatorSkillMasteryCommand(),
+        new AkBirthdayOperatorCommand(),
+        new AkOperatorBirthdayCommand(),
+        new AkFuzzyCommand(),
         new RefreshCacheCommand(),
         new AlarmSettingsCommand(),
         new ChatCommand(),
