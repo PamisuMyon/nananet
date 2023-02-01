@@ -15,6 +15,8 @@ public interface IBot
 
     public Task Refresh();
 
+    public Task<string?> SendMessage(OutgoingMessage message);
+    
     public Task<string?> SendTextMessage(string targetId, string content, bool isPersonal,
         string? referenceId = null);
 
@@ -40,4 +42,5 @@ public enum FileType
     Image,
     Video,
     Audio,
+    None,
 }

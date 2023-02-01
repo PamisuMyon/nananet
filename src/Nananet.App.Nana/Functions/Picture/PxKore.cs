@@ -9,12 +9,13 @@ namespace Nananet.App.Nana.Functions.Picture;
 
 public class PxKore
 {
-    public struct IllustOptions
+    public class IllustOptions
     {
         public string[]? Tags { get; set; }
         public string[]? ExcludedTags { get; set; }
         public bool? Fallback { get; set; }
         public string[]? FallbackTags { get; set; }
+        public string? Proxy { get; set; }
         public int? RetryTimes { get; set; }
         public string? ClientId { get; set; }
         public bool ShouldRecord { get; set; }
@@ -52,7 +53,7 @@ public class PxKore
 
     public async Task<IllustResult?> RequestIllust(IllustOptions? options)
     {
-        IllustOptions? opt = new IllustOptions
+        var opt = new IllustOptions
         {
             Fallback = true,
             ShouldRecord = false,
@@ -69,19 +70,19 @@ public class PxKore
         string[]? blockList = null;
         if (blocks != null && blocks.ContainsKey("ids"))
             blockList = blocks["ids"];
-        var result = await DoRequestIllust(opt.Value, blockList);
+        var result = await DoRequestIllust(opt, blockList);
         if (result != null)
         {
             var r = result.Value;
-            var data = r.Data;
+            var data = r.Data[0];
             var info = new StringBuilder();
             if (data["title"] != null)
                 info.Append(data["title"]);
             info.Append($"  by {data["author_name"]}");
             info.Append($"  ID {data["id"]}");
-            if (opt.Value.AppendTotalSampleInfo)
+            if (opt.AppendTotalSampleInfo)
             {
-                if (!opt.Value.IsRandomSample
+                if (!opt.IsRandomSample
                     && r.TotalSample > 0
                     && !r.Fallback)
                     info.Append($"    -🖼{r.TotalSample}-");
@@ -101,13 +102,12 @@ public class PxKore
         if (o.RetryTimes <= 0) return null;
 
         var request = new RestRequest("api/v1/illust");
-        request.AddHeader("Content-Type", "application/json");
-        request.AddBody(JsonUtil.ToJson(o));
+        request.AddJsonBody(JsonUtil.ToJson(o));
         try
         {
-            Logger.L.Debug("Requesting pxkore...");
-            var response = await _client.ExecuteAsync(request);
-            var result = JsonUtil.FromJson<IllustResult>(response.Content);
+            Logger.L.Info("Requesting pxkore...");
+            var response = await _client.ExecutePostAsync(request);
+            var result = JsonUtil.FromJson<IllustResult>(response.Content!);
             if (result.Data != null && result.Data.Count > 0)
             {
                 var data = result.Data[0];
@@ -115,7 +115,7 @@ public class PxKore
                 // Is illust in block list
                 if (blockList != null && blockList.Contains(id))
                 {
-                    Logger.L.Debug($"Blocked id detected, retry: {id}");
+                    Logger.L.Info($"Blocked id detected, retry: {id}");
                     if (o.Tags != null)
                         o.Tags = o.Tags.Where(it => it != id).ToArray();
                     o.RetryTimes -= 1;
@@ -131,6 +131,7 @@ public class PxKore
         {
             Logger.L.Error("PxKore DoRequestIllust Error");
             Logger.L.Error(e.Message);
+            Logger.L.Error(e.StackTrace);
         }
 
         return null;
@@ -143,7 +144,7 @@ public class PxKore
             var storageFile = Path.Combine(_storagePath, fileName);
             if (File.Exists(storageFile))
             {
-                Logger.L.Debug($"Use file from storage: {storageFile}");
+                Logger.L.Info($"Use file from storage: {storageFile}");
                 return storageFile;
             }
         }
@@ -151,10 +152,10 @@ public class PxKore
         var cacheDir = FileUtil.PathFromBase("cache/illusts");
         try
         {
-            Logger.L.Debug($"Downloading file: {url}");
+            Logger.L.Info($"Downloading file: {url}");
             await NetUtil.DownloadFile(url, cacheDir, fileName);
             var path = Path.Combine(cacheDir, fileName);
-            Logger.L.Debug($"File downloaded: {path}" );
+            Logger.L.Info($"File downloaded: {path}" );
             return path;
         }
         catch (Exception e)

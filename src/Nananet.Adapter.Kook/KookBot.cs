@@ -188,6 +188,11 @@ public class KookBot : IBot
             Logger.L.Debug($"Pre test content: {input.Content}");
         }
     }
+    
+    public Task<string?> SendMessage(OutgoingMessage message)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal,
         string? referenceId = null)
@@ -246,6 +251,7 @@ public class KookBot : IBot
             var attachment = new FileAttachment(new Uri(url), null, Converter.ToAttachmentType(fileType));
             var result = await textChannel.SendFileAsync(attachment,
                 referenceId != null ? new Quote(Guid.Parse(referenceId)) : null);
+            
             return result.Id.ToString();
         }
         return null;

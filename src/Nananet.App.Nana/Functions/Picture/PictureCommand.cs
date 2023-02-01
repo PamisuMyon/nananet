@@ -30,7 +30,7 @@ public abstract class PictureCommand : Command
     public override async Task Init(IBot bot)
     {
         await base.Init(bot);
-        bot.Config.TryGetExtraValue("downloadFile", out _downloadFile);
+        bot.Config.TryGetExtraValue("picDownloadFile", out _downloadFile);
     }
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)

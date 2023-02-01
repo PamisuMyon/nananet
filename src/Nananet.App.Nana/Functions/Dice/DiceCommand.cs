@@ -13,12 +13,14 @@ public class DiceCommand : Command
     public override string Name => "dice";
     
     protected Regex _regexLax = new ("((\\d+) ?\\+ ?)?((\\d*) )?r?(\\d*)d(\\d+)( ?\\+ ?(\\d+))?=?", RegexOptions.IgnoreCase);
+    protected Regex _regexIgnore = new("^D32钢$"); // hard-code
     
     
     public override Task<CommandTestInfo> Test(Message input, CommandTestOptions options)
     {
         if (input.HasContent())
         {
+            if (_regexIgnore.IsMatch(input.Content)) return Task.FromResult(NoConfidence);
             if (_regexLax.IsMatch(input.Content)) return Task.FromResult(FullConfidence);
         }
         return Task.FromResult(NoConfidence);

@@ -41,7 +41,7 @@ public record BotConfig
         return TryGetExtraValue(key, out value, default);
     }
 
-    public bool TryGetExtraValue<T>(string key, out T? value, T defaultValue)
+    public bool TryGetExtraValue<T>(string key, out T value, T defaultValue)
     {
         value = defaultValue;
         if (Extra == null || !Extra.ContainsKey(key)) return false;

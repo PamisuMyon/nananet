@@ -166,3 +166,22 @@ public class MessageAttachment
     public string Url { get; set; }
 }
 
+
+public class OutgoingMessage
+{
+    public string TargetId { get; set; }
+    public string? Content { get; set; }
+    public string? ReferenceId { get; set; }
+    public string? FileUri { get; set; }
+    public FileType FileType { get; set; } = FileType.None;
+    public SendFileMode FileMode { get; set; } = SendFileMode.Local;
+    public bool IsPersonal { get; set; }
+    
+    public enum SendFileMode
+    {
+        Local, Server
+    }
+    
+}
+
+

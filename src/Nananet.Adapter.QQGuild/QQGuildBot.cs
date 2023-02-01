@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net;
+using System.Text.RegularExpressions;
 using Nananet.Core;
 using Nananet.Core.Commands;
 using Nananet.Core.Models;
@@ -6,6 +7,7 @@ using Nananet.Core.Storage;
 using Nananet.Core.Utils;
 using QQChannelFramework.Api;
 using QQChannelFramework.Expansions.Bot;
+using RestSharp;
 using QQGuildMessage = QQChannelFramework.Models.MessageModels.Message;
 
 namespace Nananet.Adapter.QQGuild;
@@ -204,6 +206,17 @@ public class QQGuildBot : IBot
         }
         return false;
     }
+    
+    public Task<string?> SendMessage(OutgoingMessage message)
+    {
+        if (message.FileUri.NotNullNorEmpty())
+        {
+            if (message.FileMode == OutgoingMessage.SendFileMode.Server)
+                return SendServerFileMessage(message.TargetId, message.FileUri!, message.IsPersonal, message.ReferenceId);
+            return SendLocalFileMessageTemp(message.TargetId, message.Content, message.FileUri, message.ReferenceId);
+        }
+        return SendTextMessage(message.TargetId, message.Content!, message.IsPersonal, message.ReferenceId);
+    }
 
     public async Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
@@ -233,12 +246,12 @@ public class QQGuildBot : IBot
 
     public Task<string?> SendLocalFileMessage(string targetId, string filePath, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        return SendLocalFileMessageTemp(targetId, null, filePath, referenceId);
     }
 
     public Task<string?> ReplyLocalFileMessage(Message to, string filePath, FileType fileType = FileType.File)
     {
-        throw new NotImplementedException();
+        return SendLocalFileMessage(to.ChannelId, filePath, to.IsPersonal, to.MessageId);
     }
 
     public async Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
@@ -279,5 +292,51 @@ public class QQGuildBot : IBot
         await _qChannelApi.GetMessageApi().RetractMessageAsync(targetId, messageId, true);
         return true;
     }
+    
+    // TODO TEMP
+    private async Task<string?> SendLocalFileMessageTemp(string targetId, string? content, string? filePath, string? referenceId = null)
+    {
+        Logger.L.Info($"Sending message to {targetId}: \n {content}  {filePath}");
+        var baseUrl = _appSettings.IsDebug ? "https://sandbox.api.sgroup.qq.com" : "https://api.sgroup.qq.com";
+
+        var options = new RestClientOptions(baseUrl);
+        var client = new RestClient(options);
+        
+        var request = new RestRequest($"channels/{targetId}/messages");
+        request.AddHeader("Authorization", $"Bot {_appSettings.AppId}.{_appSettings.Token}");
+        request.AddHeader("Content-Type", "multipart/form-data");
+        if (content != null)
+            request.AddParameter("content", content);
+        if (referenceId != null)
+            request.AddParameter("msg_id", referenceId);
+        if (filePath != null)
+            request.AddFile("file_image", filePath);
+        
+        // hard-code 重试次数
+        var retryTimes = 7;
+        do
+        {
+            try
+            {
+                var response = await client.ExecutePostAsync(request);
+                // Logger.L.Debug($"Response: {response.Content}");
+                if (response.StatusCode != HttpStatusCode.OK)
+                    throw new Exception(response.Content);
+                var message = JsonUtil.FromJson<QQGuildMessage>(response.Content!);
+                return message?.Id;
+            }
+            catch (Exception e)
+            {
+                Logger.L.Error(e.Message);
+                // Logger.L.Error(e.StackTrace);
+                retryTimes--;
+                Logger.L.Error($"Sending image url failed, retrying({retryTimes})");
+                await Task.Delay(500);
+            }
+        } while (retryTimes >= 0);
+
+        return null;
+    }
+
     
 }

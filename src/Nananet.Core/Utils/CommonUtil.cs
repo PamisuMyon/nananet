@@ -15,10 +15,13 @@ public static class CommonUtil
         return expando;
     }
     
-    public static T MergeWith<T>(this T left, T right) {
+    public static T MergeWith<T>(this T left, T right) where T : class
+    {
         foreach (var p in typeof(T).GetProperties())
         {
-            p.SetValue(left, p.GetValue(right));
+            var rightValue = p.GetValue(right);
+            if (rightValue == default) continue;
+            p.SetValue(left, rightValue);
         }
         return left;
     }

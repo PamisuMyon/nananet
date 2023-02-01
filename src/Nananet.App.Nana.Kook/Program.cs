@@ -18,12 +18,12 @@ var options = new InitOptions
     Commands = new List<Command>
     {
         new GachaCommand(),
-        new BukeyiseseCommand(),
         new CatBoyCommand(),
         new KittyCommand(),
         new DogeCommand(),
         new QuackCommand(),
         new FoxCommand(),
+        new SetuCommand(),
         new RecruitCommand(),
         new DiceCommand(),
         new HelpCommand(),
