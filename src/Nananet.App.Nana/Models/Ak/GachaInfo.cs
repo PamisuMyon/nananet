@@ -7,7 +7,7 @@ public class GachaInfo : Entity
 {
     public string UserId { get; set; }
     
-    public WaterLevel[] WaterLevels { get; set; }
+    public List<WaterLevel> WaterLevels { get; set; }
     
     public class WaterLevel
     {
@@ -34,6 +34,11 @@ public class GachaInfo : Entity
                 return;
             }
         }
+        WaterLevels.Add(new WaterLevel
+        {
+            Type = type,
+            Value = value
+        });
     }
     
     public static GachaInfo Create(string id, string type)
@@ -41,7 +46,7 @@ public class GachaInfo : Entity
         return new GachaInfo
         {
             UserId = id,
-            WaterLevels = new WaterLevel[]
+            WaterLevels = new List<WaterLevel>
             {
                 new()
                 {

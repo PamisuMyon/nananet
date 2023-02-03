@@ -38,7 +38,8 @@ public class GachaCommand : Command
         var times = cmd.Contains('十')? 10 : 1;
 
         var waterLevel = 0;
-        var targetId = input.IsPersonal ? input.AuthorId : input.ChannelId;
+        // var targetId = input.IsPersonal ? input.AuthorId : input.ChannelId;
+        var targetId = input.AuthorId;
         var gachaInfo = await GachaInfo.FindById(targetId);
         if (gachaInfo != null)
             waterLevel = gachaInfo.GetWaterLevel(pool.Type);
