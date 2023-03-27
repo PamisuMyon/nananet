@@ -44,7 +44,7 @@ public class Alarm
         job.JobDataMap.Add("bot", _bot);
 
         var trigger = TriggerBuilder.Create()
-            .WithCronSchedule("22 2 0 * * ?")
+            .WithCronSchedule("22 0 4 * * ?")
             .Build();
 
         await _scheduler.ScheduleJob(job, trigger);

@@ -10,18 +10,8 @@ namespace Nananet.App.Nana.Functions.Picture;
 
 public class SetuCommand : Command
 {
-    [Obsolete]
-    public class SetuConfig
-    {
-        public string[] Tags { get; set; }
-        public string[] ExcludedTags { get; set; }
-        public string[][] FallbackTags { get; set; }
-        public string ClientId { get; set; }
-    }
+    public override string Name => "setu";
 
-    public override string Name => "recruit";
-
-    protected int _timeout = 8000;
     protected Regex[] _regexes =
     {
         new("来(点|电|份|张)(涩|瑟|色|美|帅)?图(片|图)? *　*(.*)"),
@@ -73,29 +63,8 @@ public class SetuCommand : Command
 
         _temporarySpam.Record(input.AuthorId);
 
-        // 不再读取配置，以下功能将会变动
-        // 默认标签、排除标签、缺省标签 -> 摸了
-        // 客户端id -> 服务器/频道/群组id or 私聊用户id
-        // var config = bot.Config.GetChannel(input.ChannelId);
-        // SetuConfig? setuConfig = null;
-        // if (config != null
-        //     && config.Wildcards != null
-        //     && config.Wildcards.ContainsKey("setu"))
-        // {
-        //     setuConfig = JsonUtil.FromJson<SetuConfig>(config.Wildcards["setu"].ToString()!);
-        // }
-        //
         var options = new PxKore.IllustOptions();
-        // if (setuConfig != null)
-        // {
-        //     options.ClientId = setuConfig.ClientId;
-        //     options.Tags = setuConfig.Tags;
-        //     options.ExcludedTags = setuConfig.ExcludedTags;
-        //     options.FallbackTags = setuConfig.FallbackTags.SelectMany(i => i).ToArray();
-        // }
         options.Proxy = _pixivProxy;
-        // options.ClientId ??= input.IsPersonal ? input.AuthorId : input.GuildId;
-        // options.ShouldRecord = true;
         options.IsRandomSample = false;
         options.AppendTotalSampleInfo = true;
         options.ReturnTotalSample = true;
@@ -106,20 +75,6 @@ public class SetuCommand : Command
             var keywords = m.Groups[4].Value.Replace('　', ' ').Trim().Split(' ');
             options.Tags = keywords;
         }
-        // 无标签则随机采样 有标签则尝试走最新未看逻辑（根据客户端id检索该id未看过的图片）
-        // if (options.Tags == null || options.Tags.Length == 0
-        //     && setuConfig != null)
-        // {
-        //     options.Tags = setuConfig.Tags;
-        //     options.IsRandomSample = true;
-        // }
-
-        // if (setuConfig != null)
-        // {
-        //     options.ExcludedTags = setuConfig.ExcludedTags;
-        //     if (setuConfig.FallbackTags.Length > 0)
-        //         options.FallbackTags = setuConfig.FallbackTags.RandomElem();
-        // }
 
         var hintMsgId = await bot.ReplyTextMessage(input, _hints.DownloadingHint);
 
@@ -128,20 +83,6 @@ public class SetuCommand : Command
         string? error = null;
         if (illust != null)
         {
-            // 服务器图片缓存 某些平台无法拿到服务器图片url
-            // var serverImage = await ServerImage.GetOne(bot.AppSettings.Platform, illust.Value.FileName);
-            // if (serverImage != null)
-            // {
-            //     Logger.L.Info($"Use server image cache: {serverImage.Url}");
-            //     var imgMsgId = await bot.ReplyServerFileMessage(input, serverImage.Url, FileType.Image);
-            //     if (string.IsNullOrEmpty(imgMsgId))
-            //         error = _hints.SendErrorHint;
-            //     else
-            //         await ActionLog.Log(Name, bot, input, serverImage.Url);
-            // }
-            // else
-            // await bot.ReplyServerFileMessage(input, illust.Value.Url);
-
             // 下载图片后上传
             var path = await _pxKore.Download(illust.Value.Url, illust.Value.FileName);
             if (path != null)
