@@ -17,14 +17,15 @@ var options = new InitOptions
     Storage = new MongoStorage("qqGuildAppSettings", "qqGuildBotConfig"),
     Commands = new List<Command>
     {
-        new GachaCommand(),
+        // new GachaCommand(),
+        new FakeGachaCommand(),
         new CatBoyCommand(),
         new KittyCommand(),
         new DogeCommand(),
         new QuackCommand(),
         new FoxCommand(),
         new SetuCommand(),
-        new RecruitCommand(),
+        // new RecruitCommand(),
         new DiceCommand(),
         new HelpCommand("qqGuildHelp"),
         new AkOperatorEvolveCommand(),
