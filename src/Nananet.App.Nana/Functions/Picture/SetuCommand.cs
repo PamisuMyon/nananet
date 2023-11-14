@@ -24,7 +24,7 @@ public class SetuCommand : Command
         SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
     };
 
-    protected readonly Spam _temporarySpam = new(0, 1, 5000);
+    protected readonly Spam _temporarySpam = new(0, 1, 2000);
     protected string _pixivProxy = "i.pixiv.re";
     protected PxKore _pxKore = new();
 
@@ -59,7 +59,11 @@ public class SetuCommand : Command
     public override async Task<CommandResult> Execute(IBot bot, Message input, CommandTestInfo testInfo)
     {
         if (testInfo.Data is not Match m) return Failed;
-        if (!_temporarySpam.Check(input.AuthorId).Pass) return Executed;
+        if (!_temporarySpam.Check(input.AuthorId).Pass)
+        {
+            Logger.L.Info($"Setu Command spam check failed: {input.Author.Id} {input.Author.NickName}");
+            return Executed;
+        }
 
         _temporarySpam.Record(input.AuthorId);
 
@@ -68,6 +72,8 @@ public class SetuCommand : Command
         options.IsRandomSample = false;
         options.AppendTotalSampleInfo = true;
         options.ReturnTotalSample = true;
+        options.ClientId = input.GuildId;
+        options.ShouldRecord = true;
 
 
         if (!string.IsNullOrEmpty(m.Groups[4].Value))
@@ -89,7 +95,7 @@ public class SetuCommand : Command
             {
                 string? imgMsgId;
                 // 对于文字和图片可同时存在的平台，图片与作品信息合为一条消息发送
-                if (bot.AppSettings.Platform == Constants.PlatfromQQGuild) // hard-code
+                if (bot.AppSettings.Platform == Constants.PlatfromNone) // hard-code
                     imgMsgId = await bot.SendMessage(new OutgoingMessage
                     {
                         Content = illust.Value.Info,
@@ -112,7 +118,7 @@ public class SetuCommand : Command
             // 发送作品信息
             if (error.NullOrEmpty()
                 && illust.Value.Info.NotNullNorEmpty()
-                && bot.AppSettings.Platform != Constants.PlatfromQQGuild) // hard-code
+                && bot.AppSettings.Platform != Constants.PlatfromNone) // hard-code
             {
                 await Task.Delay(100);
                 await bot.SendTextMessage(input.ChannelId, illust.Value.Info, input.IsPersonal, input.MessageId);

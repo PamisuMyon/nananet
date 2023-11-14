@@ -2,6 +2,7 @@
 
 public static class Constants
 {
+    public const string PlatfromNone = "none";
     public const string PlatfromKook = "kook";
     public const string PlatfromQQGuild = "qqGuild";
     

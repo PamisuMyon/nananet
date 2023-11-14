@@ -313,7 +313,7 @@ public class QQGuildBot : IBot
             request.AddFile("file_image", filePath);
         
         // hard-code 重试次数
-        var retryTimes = 7;
+        var retryTimes = 3;
         do
         {
             try
@@ -329,6 +329,9 @@ public class QQGuildBot : IBot
             {
                 Logger.L.Error(e.Message);
                 // Logger.L.Error(e.StackTrace);
+                // 被夹
+                if (e.Message.Contains("2000004"))
+                    return null;
                 retryTimes--;
                 Logger.L.Error($"Sending image url failed, retrying({retryTimes})");
                 await Task.Delay(500);

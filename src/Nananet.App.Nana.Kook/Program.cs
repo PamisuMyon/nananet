@@ -17,7 +17,8 @@ var options = new InitOptions
     Storage = new MongoStorage("kookAppSettings", "kookBotConfig"),
     Commands = new List<Command>
     {
-        new GachaCommand(),
+        // new GachaCommand(),
+        new FakeGachaCommand(),
         new CatBoyCommand(),
         new KittyCommand(),
         new DogeCommand(),

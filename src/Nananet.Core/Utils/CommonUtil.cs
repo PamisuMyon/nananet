@@ -91,6 +91,18 @@ public static class CommonUtil
         }
         return results;
     }
+    
+    public static void Shuffle<T>(this List<T> list)
+    {
+        var rnd = new Random();
+        var n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            var k = rnd.Next(n + 1);
+            (list[k], list[n]) = (list[n], list[k]);
+        }
+    }
 
     public static bool NullOrEmpty(this string? it) => string.IsNullOrEmpty(it);
 
