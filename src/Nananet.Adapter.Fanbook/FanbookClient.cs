@@ -1,12 +1,9 @@
-﻿using System.Text;
-using Nananet.Adapter.Fanbook.Api;
+﻿using Nananet.Adapter.Fanbook.Api;
+using Nananet.Adapter.Fanbook.Models;
 using Nananet.Adapter.Fanbook.WebSocket;
 using Nananet.Core.Utils;
-using Nananet.Adapter.Fanbook.Models;
-using Nananet.Adapter.Fanbook.Params;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Nananet.Adapter.Fanbook;
 
@@ -19,7 +16,9 @@ public class FanbookClient
     private BaseApi _baseApi;
     private MessageApi _messageApi;
     private CancellationTokenSource? _ctsHeartbeat;
-
+    private bool _isReady;
+    
+    public event Action? Ready;
     public event Action<Message>? MessageReceived;
     
     public FanbookClient(string token)
@@ -86,9 +85,19 @@ public class FanbookClient
         } 
         else if (action == "init")
         {
-            _ctsHeartbeat?.Cancel();
-            _ctsHeartbeat = new CancellationTokenSource();
-            StartHeartbeat(_ctsHeartbeat.Token);
+            if (jo.TryGetValue("data", out var data)
+                && data is JObject dataJo
+                && dataJo.TryGetValue("client_id", out var clientId))
+            {
+                _baseApi.ClientId = clientId.Value<string>();
+                
+                _ctsHeartbeat?.Cancel();
+                _ctsHeartbeat = new CancellationTokenSource();
+                StartHeartbeat(_ctsHeartbeat.Token);
+
+                _isReady = true;
+                Ready?.Invoke();
+            }
         }
         else if (action == "push")
         {
@@ -146,9 +155,15 @@ public class FanbookClient
 
     public async Task SendTextMessageAsync(string guildId, string channelId, string text)
     {
+        if (!_isReady) return;
         var textContent = new TextContent(text);
         var contentJson = _baseApi.ToJson(textContent);
         await _messageApi.ClientSendAsync(guildId, channelId, contentJson, text);
+    }
+
+    public void Debug()
+    {
+        _baseApi.ClientId = "0a0504670b5500152139";
     }
     
 }
