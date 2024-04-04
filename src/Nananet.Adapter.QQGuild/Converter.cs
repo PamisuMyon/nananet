@@ -28,7 +28,7 @@ public static class Converter
                 MessageId = input.MessageReference.MessageId
             };
         }
-        msg.Metions = input.Mentions?.Select(FromUser).ToList();
+        msg.Mentions = input.Mentions?.Select(FromUser).ToList();
         msg.Time = input.Time;
         msg.EditedTime = input.EditedTime;
         msg.Origin = input;
@@ -50,9 +50,9 @@ public static class Converter
             // 移除表情
             msg.Content = s_emojiRegex.Replace(input.Content, "");
             // 移除at文本
-            if (msg.Metions != null)
+            if (msg.Mentions != null)
             {
-                foreach (var it in msg.Metions)
+                foreach (var it in msg.Mentions)
                 {
                     msg.Content = msg.Content.Replace($"<@!{it.Id}>", "");
                 }

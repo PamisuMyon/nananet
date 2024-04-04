@@ -1,4 +1,3 @@
-
 using System.Text;
 
 namespace Nananet.Core.Models;
@@ -11,32 +10,32 @@ public class Message
     /// <summary>
     /// 消息ID
     /// </summary>
-    public string MessageId { get; set; }
+    public string MessageId { get; set; } = null!;
     
     /// <summary>
     /// 群/服务器/主频道ID
     /// </summary>
-    public string GuildId { get; set; }
+    public string GuildId { get; set; } = null!;
     
     /// <summary>
     /// 子频道ID
     /// </summary>
-    public string ChannelId { get; set; }
+    public string ChannelId { get; set; } = null!;
 
     /// <summary>
     /// 消息创建者ID
     /// </summary>
-    public string AuthorId { get; set; }
+    public string AuthorId { get; set; } = null!;
 
     /// <summary>
     /// 消息创建者
     /// </summary>
-    public User Author { get; set; }
+    public User Author { get; set; } = null!;
     
     /// <summary>
     /// 消息创建者成员信息
     /// </summary>
-    public Member Member { get; set; }
+    public Member Member { get; set; } = null!;
 
     /// <summary>
     /// 引用消息
@@ -46,7 +45,7 @@ public class Message
     /// <summary>
     /// @的人
     /// </summary>
-    public List<User>? Metions { get; set; }
+    public List<User>? Mentions { get; set; }
 
     /// <summary>
     /// 创建时间
@@ -60,8 +59,8 @@ public class Message
 
     public bool HasMentioned(string userId)
     {
-        if (Metions == null) return false;
-        return Metions.Exists(user => user.Id == userId);
+        if (Mentions == null) return false;
+        return Mentions.Exists(user => user.Id == userId);
     }
 
     #endregion
@@ -90,15 +89,15 @@ public class Message
     /// <summary>
     /// 处理过的纯文本内容
     /// </summary>
-    public string Content { get; set; }
+    public string Content { get; set; } = null!;
     /// <summary>
     /// 原始内容
     /// </summary>
-    public string RawContent { get; set; }
+    public string RawContent { get; set; } = null!;
     /// <summary>
     /// 未处理的纯文本内容
     /// </summary>
-    public string OriginalContent { get; set; }
+    public string OriginalContent { get; set; } = null!;
 
     /// <summary>
     /// 消息是否包含文本内容
@@ -144,15 +143,15 @@ public class MessageReference
     /// <summary>
     /// 消息ID
     /// </summary>
-    public string MessageId;
+    public string MessageId { get; set; } = null!;
     /// <summary>
     /// 消息创建者ID
     /// </summary>
-    public string AuthorId { get; set; }
+    public string? AuthorId { get; set; }
     /// <summary>
     /// 消息创建者昵称
     /// </summary>
-    public string NickName { get; set; }
+    public string? NickName { get; set; }
 }
 
 /// <summary>
@@ -163,13 +162,13 @@ public class MessageAttachment
     /// <summary>
     /// Url
     /// </summary>
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
 }
 
 
 public class OutgoingMessage
 {
-    public string TargetId { get; set; }
+    public string TargetId { get; set; } = null!;
     public string? Content { get; set; }
     public string? ReferenceId { get; set; }
     public string? FileUri { get; set; }
