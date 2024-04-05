@@ -1,5 +1,7 @@
-﻿using Nananet.Adapter.Fanbook.Api;
+﻿using System.Numerics;
+using Nananet.Adapter.Fanbook.Api;
 using Nananet.Adapter.Fanbook.Models;
+using Nananet.Adapter.Fanbook.Utils;
 using Nananet.Adapter.Fanbook.WebSocket;
 using Nananet.Core.Utils;
 using Newtonsoft.Json;
@@ -17,6 +19,7 @@ public class FanbookClient
     private MessageApi _messageApi;
     private CancellationTokenSource? _ctsHeartbeat;
     private bool _isReady;
+    private long _actionSeq = 0;
     
     public event Action? Ready;
     public event Action<Message>? MessageReceived;
@@ -79,7 +82,7 @@ public class FanbookClient
         {
             var resJo = new JObject();
             resJo["action"] = "init";
-            resJo["seq"] = 0;
+            resJo["seq"] = _actionSeq++;
             resJo["app_version"] = BaseApi.Version;
             await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
         } 
@@ -101,13 +104,25 @@ public class FanbookClient
         }
         else if (action == "push")
         {
-            Console.WriteLine("Push Message: \n" + jo["data"]);
+            // Console.WriteLine("Push Message: \n" + jo["data"]);
             if (jo.TryGetValue("data", out var data))
             {
-                ParsePushMessage(data.ToString());
+                await ParsePushMessageAsync(data.ToString());
+            }
+        }
+        else if (action == "pong")
+        {
+            if (!_isFirstPongHandled)
+            {
+                _isFirstPongHandled = true;
+                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
+                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
+                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
             }
         }
     }
+
+    private bool _isFirstPongHandled = false; 
 
     private void StartHeartbeat(CancellationToken cancellationToken)
     {
@@ -124,7 +139,7 @@ public class FanbookClient
         }
     }
 
-    private void ParsePushMessage(string data)
+    private async Task ParsePushMessageAsync(string data)
     {
         try
         {
@@ -144,6 +159,7 @@ public class FanbookClient
                         }
                     }
                 }
+                await ReadMessageAsync(message.GuildId, message.ChannelId, message.MessageId);
                 MessageReceived?.Invoke(message);
             }
         }
@@ -161,9 +177,24 @@ public class FanbookClient
         await _messageApi.ClientSendAsync(guildId, channelId, contentJson, text);
     }
 
+    public async Task ReadMessageAsync(string guildId, string channelId, string messageId)
+    {
+        if (guildId != "616200178189582337")
+            return;
+        var resJo = new JObject();
+        resJo["action"] = "upLastRead";
+        resJo["guild_id"] = guildId;
+        resJo["channel_id"] = channelId;
+        resJo["read_id"] = messageId;
+        resJo["seq"] = _actionSeq++;
+        resJo["app_version"] = BaseApi.Version;
+        await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
+    }
+    
     public void Debug()
     {
         _baseApi.ClientId = "0a0504670b5500152139";
+        _isReady = true;
     }
     
 }

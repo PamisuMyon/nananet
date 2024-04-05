@@ -24,7 +24,7 @@ public class SignatureParams
         Nonce = nonce;
         Platform = platform;
         RequestBody = requestBody;
-        Timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 
     public string GenerateSignature()

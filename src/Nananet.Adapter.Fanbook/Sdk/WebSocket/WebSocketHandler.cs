@@ -12,7 +12,7 @@ public class WebSocketHandler
     private CancellationTokenSource? _cts;
 
     public event Action? Connected;
-    public event Action? Dissconnected;
+    public event Action? Disconnected;
     public event Action<string>? MessageReceived;
 
     public async Task ConnectAsync(string url, Dictionary<string, string>? headers = null)
@@ -88,7 +88,7 @@ public class WebSocketHandler
                 }
                 else
                 {
-                    Dissconnected?.Invoke();
+                    Disconnected?.Invoke();
                 }
             }
         }
