@@ -7,11 +7,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-<!--    <ItemGroup>-->
-<!--        <None Update="app_settings.json">-->
-<!--            <CopyToOutputDirectory>Always</CopyToOutputDirectory>-->
-<!--        </None>-->
-<!--    </ItemGroup>-->
+    <ItemGroup>
+        <None Update="app_settings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Nananet.Adapter.Fanbook\Nananet.Adapter.Fanbook.csproj" />
