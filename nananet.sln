@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.Core", "src\Nananet.Core\Nananet.Core.csproj", "{814BFC22-0339-45F5-AB02-592DEEA5895B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.App.Nana", "src\Nananet.App.Nana\Nananet.App.Nana.csproj", "{0933E3B4-00B3-4739-A99D-39780393C381}"
@@ -11,6 +14,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.Adapter.QQGuild", "src\Nananet.Adapter.QQGuild\Nananet.Adapter.QQGuild.csproj", "{920A6505-0B01-49CA-8753-DC303C622546}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.App.Nana.QQGuild", "src\Nananet.App.Nana.QQGuild\Nananet.App.Nana.QQGuild.csproj", "{6168DD3D-5828-42E6-9FE7-C467497A931D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.Adapter.Fanbook", "src\Nananet.Adapter.Fanbook\Nananet.Adapter.Fanbook.csproj", "{7F7A50DA-59EE-4786-A168-0987BC52BE7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nananet.App.Nana.Fanbook", "src\Nananet.App.Nana.Fanbook\Nananet.App.Nana.Fanbook.csproj", "{2733D4D6-BFE2-44A4-BA67-F742BE67BCE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +49,19 @@ Global
 		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6168DD3D-5828-42E6-9FE7-C467497A931D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F7A50DA-59EE-4786-A168-0987BC52BE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F7A50DA-59EE-4786-A168-0987BC52BE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F7A50DA-59EE-4786-A168-0987BC52BE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F7A50DA-59EE-4786-A168-0987BC52BE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2733D4D6-BFE2-44A4-BA67-F742BE67BCE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2733D4D6-BFE2-44A4-BA67-F742BE67BCE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2733D4D6-BFE2-44A4-BA67-F742BE67BCE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2733D4D6-BFE2-44A4-BA67-F742BE67BCE1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9122FA97-B517-4F12-A871-3DF1BD9F7F31}
 	EndGlobalSection
 EndGlobal
