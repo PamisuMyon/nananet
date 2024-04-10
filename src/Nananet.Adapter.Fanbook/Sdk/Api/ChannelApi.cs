@@ -14,4 +14,12 @@ public class ChannelApi : BaseApi
         resJo["guild_id"] = guildId;
         return RestHandler.PostAsync("channel/list", resJo.ToString());
     }
+
+    public Task GetPrivateChat(long userId)
+    {
+        var resJo = new JObject();
+        resJo["user_id"] = userId;
+        return RestHandler.PostAsync("getPrivateChat", resJo.ToString());
+    }
+    
 }

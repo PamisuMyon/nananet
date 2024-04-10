@@ -42,7 +42,6 @@ public class MessageApi
         resJo["text"] = "{\"type\":\"richText\",\"title\":\"签到成功\",\"document\":\"[{\\\"insert\\\":\\\"恭喜你签到成功\\\"}]\"}";
         resJo["parse_mode"] = "Fanbook";
         resJo["reply_to_message_id"] = 616842751761186816;
-        resJo["nonce"] = MessageNonce();
         var json = resJo.ToString();
         await _restHandler.PostAsync("sendMessage", json);
     }
