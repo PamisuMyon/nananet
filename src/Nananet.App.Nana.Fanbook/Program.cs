@@ -2,14 +2,21 @@
 using Microsoft.Extensions.Configuration;
 using Nananet.Adapter.Fanbook;
 using Nananet.Adapter.Fanbook.Models;
+using Nananet.Adapter.Fanbook.Sdk.Models;
 
-Console.WriteLine("Hello, World!");
 var config = new ConfigurationBuilder()
     .AddJsonFile("app_settings.json")
     .Build();
-var token = config.GetValue<string>("Token");
+var clientConfig = config.GetSection("ClientConfig").Get<ClientConfig>();
 
-var client = new FanbookClient(token);
+var client = new FanbookClient(clientConfig);
+
+// --------------
+
+// client.Debug();
+// await client.SendTextMessageAsync("616200178189582337", "616200820257841152", "test");
+
+// --------------
 
 client.MessageReceived += OnMessageReceived;
 
@@ -26,19 +33,11 @@ async void HandleMessage(Message message)
         {
             await Task.Delay(500);
             await client.SendTextMessageAsync(message.GuildId, message.ChannelId, "hello!");
-            await Task.Delay(1000);
-            await client.SendTextMessageAsync(message.GuildId, message.ChannelId, "hello2!");
-            await Task.Delay(1000);
-            await client.SendTextMessageAsync(message.GuildId, message.ChannelId, "hello3");
         }
     }
 }
 
 await client.StartAsync();
-
-await Task.Delay(5000);
-await client.SendTextMessageAsync("616200178189582337", "616200820257841152", "test");
-
 await Task.Delay(Timeout.Infinite);
 
 // --------------

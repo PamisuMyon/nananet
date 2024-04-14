@@ -46,7 +46,7 @@ public class SignatureParams
             var sb = new StringBuilder();
             for (var i = 0; i < hashBytes.Length; i++)
             {
-                sb.Append(hashBytes[i].ToString("x"));
+                sb.Append(hashBytes[i].ToString("x2"));
             }
 
             _signature = sb.ToString();

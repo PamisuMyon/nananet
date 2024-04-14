@@ -1,5 +1,6 @@
 ﻿using Nananet.Adapter.Fanbook.Api;
 using Nananet.Adapter.Fanbook.Models;
+using Nananet.Adapter.Fanbook.Sdk.Models;
 using Nananet.Adapter.Fanbook.WebSocket;
 using Nananet.Core.Utils;
 using Newtonsoft.Json;
@@ -19,21 +20,25 @@ public class FanbookClient
     private bool _isReady;
     private long _actionSeq = 0;
     
+    public ClientConfig Config { get; private set; }
+    
     public event Action? Ready;
     public event Action<Message>? MessageReceived;
     
-    public FanbookClient(string token)
+    public FanbookClient(ClientConfig config)
     {
+        Config = config;
+        
         _wsHandler = new WebSocketHandler();
         _wsHandler.MessageReceived += OnMessageReceived;
 
-        _baseApi = new BaseApi(token);
+        _baseApi = new BaseApi(config);
         _messageApi = new MessageApi(_baseApi);
     }
 
     public async Task StartAsync()
     {
-        var wsUrl = $"wss://web-gw.fanbook.cn/?dId={_baseApi.DeviceId}&id={_baseApi.Token}&tId={_baseApi.TempId}&v={BaseApi.Version}&x-super-properties={_baseApi.Xsp}";
+        var wsUrl = $"wss://web-gw.fanbook.cn/?dId={Config.DeviceId}&id={Config.Token}&tId={_baseApi.TempId}&v={Config.AppVersion}&x-super-properties={_baseApi.Xsp}";
         Logger.L.Debug($"{Tag} Connecting to URL: {wsUrl}");
         await _wsHandler.ConnectAsync(wsUrl, GetWsHeaders());
     }
@@ -81,7 +86,7 @@ public class FanbookClient
             var resJo = new JObject();
             resJo["action"] = "init";
             resJo["seq"] = _actionSeq++;
-            resJo["app_version"] = BaseApi.Version;
+            resJo["app_version"] = Config.AppVersion;
             await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
         } 
         else if (action == "init")
@@ -113,9 +118,9 @@ public class FanbookClient
             if (!_isFirstPongHandled)
             {
                 _isFirstPongHandled = true;
-                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
-                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
-                await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
+                // await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
+                // await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
+                // await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
             }
         }
     }
@@ -157,7 +162,12 @@ public class FanbookClient
                         }
                     }
                 }
-                await ReadMessageAsync(message.GuildId, message.ChannelId, message.MessageId);
+
+                if (Config.WatchChannels != null
+                    && Config.WatchChannels.Contains(message.ChannelId))
+                {
+                    await ReadMessageAsync(message.GuildId, message.ChannelId, message.MessageId);
+                }
                 MessageReceived?.Invoke(message);
             }
         }
@@ -177,21 +187,19 @@ public class FanbookClient
 
     public async Task ReadMessageAsync(string guildId, string channelId, string messageId)
     {
-        if (guildId != "616200178189582337")
-            return;
         var resJo = new JObject();
         resJo["action"] = "upLastRead";
         resJo["guild_id"] = guildId;
         resJo["channel_id"] = channelId;
         resJo["read_id"] = messageId;
         resJo["seq"] = _actionSeq++;
-        resJo["app_version"] = BaseApi.Version;
+        resJo["app_version"] = Config.AppVersion;
         await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
     }
     
     public void Debug()
     {
-        _baseApi.ClientId = "0a0504670b5500152139";
+        _baseApi.ClientId = "0a0504670b58001d6871";
         _isReady = true;
     }
     
