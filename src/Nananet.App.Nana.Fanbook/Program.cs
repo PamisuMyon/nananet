@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Nananet.Adapter.Fanbook;
-using Nananet.Adapter.Fanbook.Models;
-using Nananet.Adapter.Fanbook.Sdk.Models;
+using Nananet.Sdk.Fanbook;
+using Nananet.Sdk.Fanbook.Models;
+using Nananet.Sdk.Fanbook.Models;
 
 var config = new ConfigurationBuilder()
     .AddJsonFile("app_settings.json")

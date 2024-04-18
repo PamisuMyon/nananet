@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using Nananet.Adapter.Fanbook.Models;
 using Nananet.Core.Models;
-using FanbookMessage = Nananet.Adapter.Fanbook.Models.Message;
-using FanbookMember = Nananet.Adapter.Fanbook.Models.Member;
-using FanbookUser = Nananet.Adapter.Fanbook.Models.User;
+using Nananet.Sdk.Fanbook.Models;
+using FanbookMessage = Nananet.Sdk.Fanbook.Models.Message;
+using FanbookMember = Nananet.Sdk.Fanbook.Models.Member;
+using FanbookUser = Nananet.Sdk.Fanbook.Models.User;
 using Member = Nananet.Core.Models.Member;
 using Message = Nananet.Core.Models.Message;
 using User = Nananet.Core.Models.User;

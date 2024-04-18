@@ -1,4 +1,4 @@
-﻿namespace Nananet.Adapter.Fanbook.Sdk.Models;
+﻿namespace Nananet.Sdk.Fanbook.Models;
 
 public class ClientRuntimeData
 {

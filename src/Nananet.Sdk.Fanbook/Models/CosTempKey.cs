@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Nananet.Adapter.Fanbook.Sdk.Models;
+namespace Nananet.Sdk.Fanbook.Models;
 
 public class CosTempKey
 {

@@ -1,4 +1,4 @@
-﻿namespace Nananet.Adapter.Fanbook.Sdk.Models.Results;
+﻿namespace Nananet.Sdk.Fanbook.Models.Results;
 
 public class ActionResult<T>
 {

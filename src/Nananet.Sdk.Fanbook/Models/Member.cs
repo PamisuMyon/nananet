@@ -1,5 +1,5 @@
 ﻿
-namespace Nananet.Adapter.Fanbook.Models;
+namespace Nananet.Sdk.Fanbook.Models;
 
 public class Member
 {

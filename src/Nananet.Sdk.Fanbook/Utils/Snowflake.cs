@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Nananet.Adapter.Fanbook.Utils;
+namespace Nananet.Sdk.Fanbook.Utils;
 
 public class Snowflake
 {

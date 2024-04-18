@@ -8,8 +8,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Nananet.Core\Nananet.Core.csproj" />
-        <ProjectReference Include="..\Nananet.Sdk.Fanbook\Nananet.Sdk.Fanbook.csproj" />
     </ItemGroup>
 
-    
+    <ItemGroup>
+        <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.*" />
+    </ItemGroup>
+
 </Project>

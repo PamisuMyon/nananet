@@ -1,6 +1,6 @@
-﻿using Nananet.Adapter.Fanbook.Sdk.Models;
+﻿using Nananet.Sdk.Fanbook.Models;
 
-namespace Nananet.Adapter.Fanbook.Api;
+namespace Nananet.Sdk.Fanbook.Api;
 
 public abstract class BaseApi
 {

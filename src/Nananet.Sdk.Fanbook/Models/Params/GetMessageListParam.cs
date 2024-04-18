@@ -1,4 +1,4 @@
-﻿namespace Nananet.Adapter.Fanbook.Params;
+﻿namespace Nananet.Sdk.Fanbook.Models.Params;
 
 public class GetMessageListParam
 {

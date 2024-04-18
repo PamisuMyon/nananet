@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Nananet.Adapter.Fanbook.Utils;
+namespace Nananet.Sdk.Fanbook.Utils;
 
 public static class SdkUtil
 {

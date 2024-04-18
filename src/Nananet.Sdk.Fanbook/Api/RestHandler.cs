@@ -1,12 +1,11 @@
 ﻿using System.Net;
 using System.Text;
-using Nananet.Adapter.Fanbook.Models;
-using Nananet.Adapter.Fanbook.Sdk.Models;
 using Nananet.Core.Utils;
+using Nananet.Sdk.Fanbook.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Nananet.Adapter.Fanbook.Api;
+namespace Nananet.Sdk.Fanbook.Api;
 
 public class RestHandler
 {

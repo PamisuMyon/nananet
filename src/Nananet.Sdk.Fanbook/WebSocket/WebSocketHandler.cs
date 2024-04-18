@@ -2,7 +2,7 @@
 using System.Text;
 using Nananet.Core.Utils;
 
-namespace Nananet.Adapter.Fanbook.WebSocket;
+namespace Nananet.Sdk.Fanbook.WebSocket;
 
 public class WebSocketHandler
 {

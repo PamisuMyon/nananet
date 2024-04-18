@@ -1,4 +1,6 @@
-﻿namespace Nananet.Adapter.Fanbook.Models;
+﻿using Newtonsoft.Json;
+
+namespace Nananet.Sdk.Fanbook.Models;
 
 public class Message
 {
@@ -33,6 +35,7 @@ public class TextContent
 {
     public string Type { get; set; } = null!;
     public string Text { get; set; } = null!;
+    [JsonProperty("contentType")]
     public int ContentType { get; set; }
 
     public TextContent(string text)
@@ -41,4 +44,27 @@ public class TextContent
         Text = text;
         ContentType = 0;
     }
+}
+
+public class ImageContent
+{
+    public string Type { get; set; }
+    [JsonProperty("fileType")]
+    public string FileType { get; set; }
+    public string Url { get; set; } = null!;
+    public bool Thumb { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int Size { get; set; }
+    [JsonProperty("localFilePath")]
+    public string LocalFilePath { get; set; } = null!;
+    [JsonProperty("localIdentify")]
+    public string LocalIdentify { get; set; } = null!;
+
+    public ImageContent()
+    {
+        Type = "image";
+        FileType = "image";
+    }
+    
 }

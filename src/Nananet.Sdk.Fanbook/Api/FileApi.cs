@@ -2,12 +2,12 @@
 using COSXML;
 using COSXML.Auth;
 using COSXML.Transfer;
-using Nananet.Adapter.Fanbook.Sdk.Models;
-using Nananet.Adapter.Fanbook.Sdk.Models.Results;
-using Nananet.Adapter.Fanbook.Utils;
+using Nananet.Sdk.Fanbook.Models;
+using Nananet.Sdk.Fanbook.Models.Results;
+using Nananet.Sdk.Fanbook.Utils;
 using Nananet.Core.Utils;
 
-namespace Nananet.Adapter.Fanbook.Api;
+namespace Nananet.Sdk.Fanbook.Api;
 
 public class FileApi : BaseApi
 {
@@ -98,10 +98,10 @@ public class FileApi : BaseApi
         
         var cosPath = await GetImageCosPathAsync(_cosTempKey!, filePath);
         Console.WriteLine($"Cos path: {cosPath}");
-        return await UploadFile(_cosTempKey!, _cosXmlServer!, cosPath, filePath);
+        return await UploadFileAsync(_cosTempKey!, _cosXmlServer!, cosPath, filePath);
     }
     
-    public async Task<string?> UploadFile(CosTempKey cosTempKey, CosXmlServer cosXmlServer, string cosPath, string srcPath)
+    public async Task<string?> UploadFileAsync(CosTempKey cosTempKey, CosXmlServer cosXmlServer, string cosPath, string srcPath)
     {
         // 初始化 TransferConfig
         var transferConfig = new TransferConfig();

@@ -1,13 +1,13 @@
 ﻿using System.Text;
-using Nananet.Adapter.Fanbook.Api;
-using Nananet.Adapter.Fanbook.Models;
-using Nananet.Adapter.Fanbook.Sdk.Models;
-using Nananet.Adapter.Fanbook.WebSocket;
+
 using Nananet.Core.Utils;
+using Nananet.Sdk.Fanbook.Api;
+using Nananet.Sdk.Fanbook.Models;
+using Nananet.Sdk.Fanbook.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Nananet.Adapter.Fanbook;
+namespace Nananet.Sdk.Fanbook;
 
 // TODO 断线重连
 
@@ -232,15 +232,7 @@ public class FanbookClient
             Logger.L.Error(ex);
         }
     }
-
-    public async Task SendTextMessageAsync(string guildId, string channelId, string text)
-    {
-        if (!_isReady) return;
-        var textContent = new TextContent(text);
-        var contentJson = _restHandler.ToJson(textContent);
-        await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text);
-    }
-
+    
     public async Task ReadMessageAsync(string guildId, string channelId, string messageId)
     {
         var resJo = new JObject();
@@ -251,6 +243,30 @@ public class FanbookClient
         resJo["seq"] = _actionSeq++;
         resJo["app_version"] = RuntimeData.Config.AppVersion;
         await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
+    }
+
+    public async Task SendTextMessageAsync(string guildId, string channelId, string text)
+    {
+        if (!_isReady) return;
+        var textContent = new TextContent(text);
+        var contentJson = _restHandler.ToJson(textContent);
+        await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text);
+    }
+
+    public async Task SendImageMessageAsync(string guildId, string channelId, string filePath)
+    {
+        if (!_isReady) return;
+        var imageUrl = await FileApi.UploadImageAsync(filePath);
+        if (string.IsNullOrEmpty(imageUrl))
+        {
+            Logger.L.Error("SendImageMessageAsync upload failed.");
+            return;
+        }
+        
+        var imageContent = new ImageContent();
+        imageContent.Url = imageUrl;
+        // using var image = 
+
     }
     
     public void Debug()

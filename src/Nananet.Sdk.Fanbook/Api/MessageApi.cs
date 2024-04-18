@@ -1,9 +1,9 @@
-﻿using Nananet.Adapter.Fanbook.Models;
-using Nananet.Adapter.Fanbook.Params;
-using Nananet.Adapter.Fanbook.Sdk.Models.Results;
-using Nananet.Adapter.Fanbook.Utils;
+﻿using Nananet.Sdk.Fanbook.Models;
+using Nananet.Sdk.Fanbook.Models.Params;
+using Nananet.Sdk.Fanbook.Models.Results;
+using Nananet.Sdk.Fanbook.Utils;
 
-namespace Nananet.Adapter.Fanbook.Api;
+namespace Nananet.Sdk.Fanbook.Api;
 
 public class MessageApi : BaseApi
 {

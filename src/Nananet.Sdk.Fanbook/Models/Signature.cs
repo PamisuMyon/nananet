@@ -1,9 +1,8 @@
 ﻿using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
-using Nananet.Adapter.Fanbook.Utils;
+using Nananet.Sdk.Fanbook.Utils;
 
-namespace Nananet.Adapter.Fanbook.Models;
+namespace Nananet.Sdk.Fanbook.Models;
 
 public class Signature
 {
