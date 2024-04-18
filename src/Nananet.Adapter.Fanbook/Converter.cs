@@ -29,20 +29,20 @@ public static class Converter
         msg.Author.Id = msg.AuthorId;
         if (input.Member != null)
             msg.Member = FromMember(input.Member);
-        if (input.QuoteL2 != null)
-        {
-            msg.Reference = new MessageReference
-            {
-                MessageId = input.QuoteL2
-            };
-        }
-        else if (input.QuoteL1 != null) 
+        if (input.QuoteL1 != null)
         {
             msg.Reference = new MessageReference
             {
                 MessageId = input.QuoteL1
             };
         }
+        // else if (input.QuoteL2 != null) 
+        // {
+        //     msg.Reference = new MessageReference
+        //     {
+        //         MessageId = input.QuoteL2
+        //     };
+        // }
         msg.Mentions = input.Mentions?.Select(it =>
         {
             return new User()

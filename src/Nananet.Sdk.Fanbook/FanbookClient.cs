@@ -22,11 +22,13 @@ public class FanbookClient
     private CancellationTokenSource? _ctsHeartbeat;
     private bool _isReady;
     private long _actionSeq = 0;
+    private Dictionary<string, string> _channelGuildMap = new();
     
     public ClientRuntimeData RuntimeData { get; private set; }
     public UserApi UserApi { get; private set; }
     public MessageApi MessageApi { get; private set; }
     public FileApi FileApi { get; private set; }
+    public GuildApi GuildApi { get; private set; }
     
     public event Action? Ready;
     public event Action<Message>? MessageReceived;
@@ -45,6 +47,7 @@ public class FanbookClient
         UserApi = new UserApi(_restHandler);
         MessageApi = new MessageApi(_restHandler);
         FileApi = new FileApi(_restHandler);
+        GuildApi = new GuildApi(_restHandler);
     }
 
     public async Task SetBrowserContextAsync(string guildId, string channelId)
@@ -70,6 +73,23 @@ public class FanbookClient
         if (messages != null && messages.Count > 0)
         {
             RuntimeData.CurrentChannelLastMessageId = messages[0].MessageId;
+        }
+    }
+
+    public async Task RefreshGuildInfoAsync()
+    {
+        if (!_isReady)
+            return;
+        var guilds = await GuildApi.GetMyGuildsAsync();
+        if (guilds != null)
+        {
+            for (var i = 0; i < guilds.Count; i++)
+            {
+                for (var j = 0; j < guilds[i].ChannelLists.Count; j++)
+                {
+                    _channelGuildMap[guilds[i].ChannelLists[j]] = guilds[i].GuildId;
+                }
+            }
         }
     }
 
@@ -146,6 +166,7 @@ public class FanbookClient
 
                 _isReady = true;
                 
+                // 获取当前频道最后一条消息并读三次
                 await RecordCurrentChannelLastMessageAsync();
                 if (!string.IsNullOrEmpty(RuntimeData.CurrentGuildId)
                     && !string.IsNullOrEmpty(RuntimeData.CurrentChannelId)
@@ -155,6 +176,9 @@ public class FanbookClient
                     await ReadMessageAsync(RuntimeData.CurrentGuildId, RuntimeData.CurrentChannelId, RuntimeData.CurrentChannelLastMessageId);
                     await ReadMessageAsync(RuntimeData.CurrentGuildId, RuntimeData.CurrentChannelId, RuntimeData.CurrentChannelLastMessageId);
                 }
+                
+                // 获取当前所有服务器信息，构建频道-服务器映射
+                await RefreshGuildInfoAsync();
                 
                 Ready?.Invoke();
             }
@@ -243,20 +267,31 @@ public class FanbookClient
         await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
     }
 
-    public async Task<string?> SendTextMessageAsync(string guildId, string channelId, string text)
+    public async Task<string?> SendTextMessageAsync(string channelId, string text, string? quoteL1 = null, string? quoteL2 = null)
     {
         if (!_isReady) return null;
+        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        {
+            Logger.L.Error($"Guild of channel {channelId} not found.");
+            return null;
+        }
         var textContent = new TextContent(text);
         var contentJson = _restHandler.ToJson(textContent);
-        var result = await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text);
+        var result = await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text, quoteL1, quoteL2);
         if (result?.Status == true)
             return result.Data?.MessageId;
         return null;
     }
 
-    public async Task<string?> SendLocalImageMessageAsync(string guildId, string channelId, string filePath)
+    public async Task<string?> SendLocalImageMessageAsync(string channelId, string filePath)
     {
         if (!_isReady) return null;
+        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        {
+            Logger.L.Error($"Guild of channel {channelId} not found.");
+            return null;
+        }
+        
         if (!File.Exists(filePath))
         {
             Logger.L.Error("SendImageMessageAsync file not exists.");
@@ -289,9 +324,15 @@ public class FanbookClient
         return null;
     }
 
-    public async Task<string?> SendServerImageMessageAsync(string guildId, string channelId, string fileUrl)
+    public async Task<string?> SendServerImageMessageAsync(string channelId, string fileUrl)
     {
         if (!_isReady) return null;
+        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        {
+            Logger.L.Error($"Guild of channel {channelId} not found.");
+            return null;
+        }
+        
         var imageContent = new ImageContent
         {
             Url = fileUrl,
@@ -312,12 +353,6 @@ public class FanbookClient
     {
         if (!_isReady) return Task.FromResult(false);
         return MessageApi.RecallAsync(channelId, messageId);
-    }
-    
-    public void Debug()
-    {
-        RuntimeData.ClientId = "0a0504670b58001d6871";
-        _isReady = true;
     }
     
 }

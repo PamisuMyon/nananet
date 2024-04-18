@@ -67,14 +67,14 @@ public abstract class PictureCommand : Command
             error = Hints.DownloadErrorHint;
         }
 
-        await Task.Delay(1000);
         if (hintMsgId != null)
         {
-            var b = await bot.DeleteMessage(input.ChannelId, hintMsgId);
+            _ = bot.DeleteMessage(input.ChannelId, hintMsgId);
         }
 
         if (error != null)
         {
+            await Task.Delay(1000);
             await bot.ReplyTextMessage(input, error);
             await ActionLog.Log(Name, bot, input, error);
         }

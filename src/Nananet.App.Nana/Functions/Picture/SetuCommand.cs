@@ -120,16 +120,16 @@ public class SetuCommand : Command
                 && illust.Value.Info.NotNullNorEmpty()
                 && bot.AppSettings.Platform != Constants.PlatformNone) // TODO hard-code
             {
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 await bot.SendTextMessage(input.ChannelId, illust.Value.Info, input.IsPersonal, input.MessageId);
                 await ActionLog.Log(Name, bot, input, illust.Value.Info);
             }
         }
 
-        await bot.DeleteMessage(input.ChannelId, hintMsgId!);
+        _ = bot.DeleteMessage(input.ChannelId, hintMsgId!);
         if (error.NotNullNorEmpty())
         {
-            await Task.Delay(500);
+            await Task.Delay(1000);
             await bot.ReplyTextMessage(input, error!);
             await ActionLog.Log(Name, bot, input, error);
         }

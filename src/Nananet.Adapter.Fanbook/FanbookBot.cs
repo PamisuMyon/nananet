@@ -61,7 +61,7 @@ public class FanbookBot : IBot
 
             await Refresh();
             Client.MessageReceived += OnMessageReceived;
-            Task.Run(ProcessMessageQueue);
+            _ = Task.Run(ProcessMessageQueue);
         };
         
         // TODO hard-code
@@ -94,7 +94,7 @@ public class FanbookBot : IBot
                 var msg = MessageQueue.Dequeue();
                 await ProcessMessage(msg);
             }
-            await Task.Delay(500);
+            await Task.Delay(1000);
         }
     }
     
@@ -193,45 +193,50 @@ public class FanbookBot : IBot
 
     public Task<string?> SendTextMessage(string targetId, string content, bool isPersonal, string? referenceId = null)
     {
-        var splits = targetId.Split("/");
-        return Client.SendTextMessageAsync(splits[0], splits[1], content);
+        return Client.SendTextMessageAsync(targetId, content);
     }
 
     public Task<string?> ReplyTextMessage(Message to, string content)
     {
-        var targetId = $"{to.GuildId}/{to.ChannelId}";
-        return SendTextMessage(targetId, content, false);
+        string quoteL1;
+        string? quoteL2 = null;
+        if (to.Reference != null)
+        {
+            quoteL1 = to.Reference.MessageId;
+            quoteL2 = to.MessageId;
+        }
+        else
+            quoteL1 = to.MessageId;
+        return Client.SendTextMessageAsync(to.ChannelId, content, quoteL1, quoteL2);
     }
 
     public Task<string?> SendLocalFileMessage(string targetId, string filePath, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        var splits = targetId.Split("/");
-        return Client.SendLocalImageMessageAsync(splits[0], splits[1], filePath);
+        return Client.SendLocalImageMessageAsync(targetId, filePath);
     }
 
     public Task<string?> ReplyLocalFileMessage(Message to, string filePath, FileType fileType = FileType.File)
     {
-        var targetId = $"{to.GuildId}/{to.ChannelId}";
-        return SendLocalFileMessage(targetId, filePath, false, null, fileType);
+        return SendLocalFileMessage(to.ChannelId, filePath, false, null, fileType);
     }
 
     public Task<string?> SendServerFileMessage(string targetId, string url, bool isPersonal, string? referenceId = null, FileType fileType = FileType.File)
     {
-        var splits = targetId.Split("/");
-        return Client.SendServerImageMessageAsync(splits[0], splits[1], url);
+        return Client.SendServerImageMessageAsync(targetId, url);
     }
 
     public Task<string?> ReplyServerFileMessage(Message to, string url, FileType fileType = FileType.File)
     {
-        var targetId = $"{to.GuildId}/{to.ChannelId}";
-        return SendServerFileMessage(targetId, url, false, null, fileType);
+        return SendServerFileMessage(to.ChannelId, url, false, null, fileType);
     }
 
-    public Task<bool> DeleteMessage(string? targetId, string messageId)
+    public async Task<bool> DeleteMessage(string? targetId, string messageId)
     {
         if (targetId == null)
-            return Task.FromResult(false);
-        return Client.RecallMessageAsync(targetId, messageId);
+            return false;
+        // TODO 临时 撤回消息速度太快会导致网页显示错误，先写死延时
+        await Task.Delay(2000);
+        return await Client.RecallMessageAsync(targetId, messageId);
     }
     
 }
