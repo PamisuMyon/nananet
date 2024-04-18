@@ -6,6 +6,7 @@ using Nananet.Sdk.Fanbook.Models;
 using Nananet.Sdk.Fanbook.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SixLabors.ImageSharp;
 
 namespace Nananet.Sdk.Fanbook;
 
@@ -31,7 +32,7 @@ public class FanbookClient
     
     public FanbookClient(ClientConfig config)
     {
-        var tempId = new Guid().ToString();
+        var tempId = Guid.NewGuid().ToString();
         var xspJson = $@"{{""platform"":""web"",""version"":""{config.AppVersion}"",""device_id"":""{config.DeviceId}"",""build_number"":""{config.BuildNumber}""}}";
         var xsp = Convert.ToBase64String(Encoding.UTF8.GetBytes(xspJson));
         RuntimeData = new ClientRuntimeData(config, tempId, xsp);
@@ -166,18 +167,13 @@ public class FanbookClient
         }
         // else if (action == "pong")
         // {
-            // if (!_isFirstPongHandled)
-            // {
-            //     _isFirstPongHandled = true;
-            //     if (!string.IsNullOrEmpty(RuntimeData.CurrentGuildId)
-            //         && !string.IsNullOrEmpty(RuntimeData.CurrentChannelId)
-            //         && !string.IsNullOrEmpty(RuntimeData.CurrentChannelLastMessageId))
-            //     {
-            //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
-            //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
-            //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616202296463982592");
-            //     }
-            // }
+        //     if (!_isFirstPongHandled)
+        //     {
+        //         _isFirstPongHandled = true;
+        //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616856931931639808");
+        //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616856931931639808");
+        //         await ReadMessageAsync("616200178189582337", "616200178307022848", "616856931931639808");
+        //     }
         // }
     }
 
@@ -256,6 +252,12 @@ public class FanbookClient
     public async Task SendImageMessageAsync(string guildId, string channelId, string filePath)
     {
         if (!_isReady) return;
+        if (!File.Exists(filePath))
+        {
+            Logger.L.Error("SendImageMessageAsync file not exists.");
+            return;
+        }
+        
         var imageUrl = await FileApi.UploadImageAsync(filePath);
         if (string.IsNullOrEmpty(imageUrl))
         {
@@ -263,10 +265,20 @@ public class FanbookClient
             return;
         }
         
-        var imageContent = new ImageContent();
-        imageContent.Url = imageUrl;
-        // using var image = 
-
+        using var image = Image.Load(filePath);
+        var fileInfo = new FileInfo(filePath);
+        
+        var imageContent = new ImageContent
+        {
+            Url = imageUrl,
+            Width = image.Width,
+            Height = image.Height,
+            Size = fileInfo.Length,
+            LocalFilePath = "",
+            LocalIdentify = Path.GetFileName(filePath)
+        };
+        var contentJson = _restHandler.ToJson(imageContent);
+        await MessageApi.ClientSendAsync(guildId, channelId, contentJson, "[图片]");
     }
     
     public void Debug()

@@ -22,21 +22,4 @@ public static class SdkUtil
         }
     }
     
-    [Obsolete] // 不支持公钥解密
-    public static string DecodeRsa(string encryptedText, string publicKeyPem)
-    {
-        var publicKeyPemTrimmed = publicKeyPem.Replace("-----BEGIN PUBLIC KEY-----", "")
-            .Replace("-----END PUBLIC KEY-----", "")
-            .Replace("\n", "");
-        var publicKeyBytes = Convert.FromBase64String(publicKeyPemTrimmed);
-        
-        using (var rsa = new RSACryptoServiceProvider())
-        {
-            rsa.ImportSubjectPublicKeyInfo(publicKeyBytes, out _);
-            var encryptedBytes = Convert.FromBase64String(encryptedText);
-            var decryptedBytes = rsa.Decrypt(encryptedBytes, false);
-            return Encoding.UTF8.GetString(decryptedBytes);
-        }
-    }
-    
 }

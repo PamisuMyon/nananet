@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Text;
+using System.Text.Json.Nodes;
 using COSXML;
 using COSXML.Auth;
 using COSXML.Transfer;
@@ -28,10 +29,12 @@ public class FileApi : BaseApi
             
             // SecretKey需要RSA公钥解密，.NET中不太好实现，时间关系先RPC
             const string RsaUrl = "http://127.0.0.1:7006/rsa/decryptPublic";
-            var jo = new JsonObject();
-            jo["content"] = cosTempKey!.SecretKey;
+            // var jo = new JsonObject();
+            // jo["content"] = cosTempKey!.SecretKey;
+            // var content = new StringContent(jo.ToString());
+            var json = $@"{{ ""content"": ""{cosTempKey!.SecretKey}"" }}";
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
             using var client = new HttpClient();
-            var content = new StringContent(jo.ToString());
             try
             {
                 var response = await client.PostAsync(RsaUrl, content);

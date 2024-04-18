@@ -15,7 +15,7 @@ public class MessageApi : BaseApi
         _shardId = Random.Shared.Next(0, 32);
     }
     
-    public async Task ClientSendAsync(string guildId, string channelId, string contentJson, string desc)
+    public async Task<ActionResult?> ClientSendAsync(string guildId, string channelId, string contentJson, string desc)
     {
         var url = $"message/clientSend/{guildId}/{channelId}";
         var clientSend = new ClientSendParam()
@@ -29,7 +29,7 @@ public class MessageApi : BaseApi
             Transaction = Guid.NewGuid().ToString()
         };
         var json = RestHandler.ToJson(clientSend);
-        await RestHandler.PostAsync<ActionResult>(url, json);
+        return await RestHandler.PostAsync<ActionResult>(url, json);
     }
     
     private string MessageNonce()

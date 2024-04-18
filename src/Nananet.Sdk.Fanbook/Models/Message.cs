@@ -55,7 +55,7 @@ public class ImageContent
     public bool Thumb { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
-    public int Size { get; set; }
+    public long Size { get; set; }
     [JsonProperty("localFilePath")]
     public string LocalFilePath { get; set; } = null!;
     [JsonProperty("localIdentify")]

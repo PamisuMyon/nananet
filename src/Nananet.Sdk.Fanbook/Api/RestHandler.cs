@@ -22,6 +22,8 @@ public class RestHandler
         }
     };
 
+    private WebProxy _webProxy = new(new Uri("http://127.0.0.1:8888"), BypassOnLocal: false);
+    
     public ClientRuntimeData RuntimeData { get; private set; }
     
     public RestHandler(ClientRuntimeData runtimeData)
@@ -39,15 +41,21 @@ public class RestHandler
         try
         {
             url = $"{ApiBaseUrl}/{url}";
-            var handler = new HttpClientHandler();
+            
+            var handler = new HttpClientHandler()
+            {
+                AutomaticDecompression = DecompressionMethods.GZip,
+                // Proxy = _webProxy,
+                // UseProxy = true,
+            };
             handler.CookieContainer = new CookieContainer();
             AddCookies(handler.CookieContainer);
+            
             using var client = new HttpClient(handler);
-            // using var client = new HttpClient();
             client.DefaultRequestVersion = new Version(2, 0);
-            var content = new StringContent(body, Encoding.UTF8, "application/json");
             AddCommonHeaders(client, body);
-            client.DefaultRequestHeaders.Add("referer", $"{ApiHost}/channels/{RuntimeData.CurrentGuildId}/{RuntimeData.CurrentChannelId}");
+            
+            var content = new StringContent(body, Encoding.UTF8, "application/json");
             var response = await client.PostAsync(url, content);
             if (response.IsSuccessStatusCode)
             {
@@ -106,6 +114,7 @@ public class RestHandler
         client.DefaultRequestHeaders.Add("accept-encoding", "gzip, deflate, br, zstd");
         client.DefaultRequestHeaders.Add("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
         client.DefaultRequestHeaders.Add("accept", "application/json, text/plain, */*");
+        client.DefaultRequestHeaders.Add("referer", $"{ApiHost}/channels/{RuntimeData.CurrentGuildId}/{RuntimeData.CurrentChannelId}");
     }
 
     private void AddCookies(CookieContainer container)

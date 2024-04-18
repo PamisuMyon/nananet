@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
         <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.*" />
     </ItemGroup>
 
