@@ -77,7 +77,7 @@ public class FanbookBot : IBot
         var msg = Converter.FromMessage(input);
         if (msg == null) return;
         
-        Logger.L.Info($"OnMessageReceived: {msg}");
+        // Logger.L.Info($"OnMessageReceived: {msg}");
         Task.Run(async () =>
         {
             await Task.Delay(1000);     // 考虑到目前为用户api，控制下操作频率
@@ -166,6 +166,7 @@ public class FanbookBot : IBot
     {
         await Storage.RefreshBotConfig();
         await Storage.RefreshBlockList();
+        await Client.RefreshGuildInfoAsync();
         Defender = new Defender(Storage, Config.Defender.Interval, Config.Defender.Threshold);
         foreach (var command in Commands)
         {

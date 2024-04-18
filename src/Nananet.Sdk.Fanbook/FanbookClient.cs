@@ -18,6 +18,7 @@ public class FanbookClient
     private const int HeartbeatInterval = 25000;
 
     private WebSocketHandler _wsHandler;
+    private string? _wsUrl;
     private RestHandler _restHandler;
     private CancellationTokenSource? _ctsHeartbeat;
     private bool _isReady;
@@ -42,6 +43,7 @@ public class FanbookClient
         
         _wsHandler = new WebSocketHandler();
         _wsHandler.MessageReceived += OnMessageReceived;
+        _wsHandler.Disconnected += OnDisconnected;
 
         _restHandler = new RestHandler(RuntimeData);
         UserApi = new UserApi(_restHandler);
@@ -93,6 +95,16 @@ public class FanbookClient
         }
     }
 
+    public async Task<string?> GetGuildIdByChannelIdAsync(string channelId)
+    {
+        if (_channelGuildMap.TryGetValue(channelId, out var guildId))
+            return guildId;
+        await RefreshGuildInfoAsync();
+        if (_channelGuildMap.TryGetValue(channelId, out guildId))
+            return guildId;
+        return null;
+    } 
+
     /// <summary>
     /// 启动流程：
     /// 1. ws连接成功
@@ -101,9 +113,9 @@ public class FanbookClient
     /// </summary>
     public async Task StartAsync()
     {
-        var wsUrl = $"wss://web-gw.fanbook.cn/?dId={RuntimeData.Config.DeviceId}&id={RuntimeData.Config.Token}&tId={RuntimeData.TempId}&v={RuntimeData.Config.AppVersion}&x-super-properties={RuntimeData.Xsp}";
-        Logger.L.Debug($"{Tag} Connecting to URL: {wsUrl}");
-        await _wsHandler.ConnectAsync(wsUrl, GetWsHeaders());
+        _wsUrl = $"wss://web-gw.fanbook.cn/?dId={RuntimeData.Config.DeviceId}&id={RuntimeData.Config.Token}&tId={RuntimeData.TempId}&v={RuntimeData.Config.AppVersion}&x-super-properties={RuntimeData.Xsp}";
+        Logger.L.Debug($"{Tag} Connecting to URL: {_wsUrl}");
+        await _wsHandler.ConnectAsync(_wsUrl, GetWsHeaders());
     }
 
     private Dictionary<string, string> GetWsHeaders()
@@ -139,6 +151,22 @@ public class FanbookClient
         {
             Logger.L.Error($"{Tag} OnMessageReceived Error:");
             Logger.L.Error(ex);
+        }
+    }
+    
+    private void OnDisconnected()
+    {
+        Logger.L.Error("Websocket disconnected, reconnecting...");
+        Reconnect();
+    }
+
+    private async void Reconnect()
+    {
+        if (_wsUrl != null)
+        {
+            _wsHandler.Close();
+            await Task.Delay(2000);
+            await _wsHandler.ConnectAsync(_wsUrl, GetWsHeaders());
         }
     }
 
@@ -270,7 +298,8 @@ public class FanbookClient
     public async Task<string?> SendTextMessageAsync(string channelId, string text, string? quoteL1 = null, string? quoteL2 = null)
     {
         if (!_isReady) return null;
-        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");
             return null;
@@ -286,7 +315,8 @@ public class FanbookClient
     public async Task<string?> SendLocalImageMessageAsync(string channelId, string filePath)
     {
         if (!_isReady) return null;
-        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");
             return null;
@@ -327,7 +357,8 @@ public class FanbookClient
     public async Task<string?> SendServerImageMessageAsync(string channelId, string fileUrl)
     {
         if (!_isReady) return null;
-        if (!_channelGuildMap.TryGetValue(channelId, out var guildId))
+        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");
             return null;

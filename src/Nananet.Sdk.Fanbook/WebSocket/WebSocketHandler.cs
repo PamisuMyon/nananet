@@ -69,7 +69,7 @@ public class WebSocketHandler
                 var data = Encoding.UTF8.GetString(bytes);
                 if (data.Length > 0)
                 {
-                    Logger.L.Debug($"Message received: {data}");
+                    // Logger.L.Debug($"Message received: {data}");
                     MessageReceived?.Invoke(data);
                 }
             }
@@ -105,6 +105,7 @@ public class WebSocketHandler
             _webSocket.State != WebSocketState.Open)
         {
             Logger.L.Error("The connection is closed.");
+            Disconnected?.Invoke();
             return;
         }
 
@@ -117,6 +118,15 @@ public class WebSocketHandler
         catch (Exception ex)
         {
             Logger.L.Error(ex);
+        }
+        finally
+        {
+            if (!_cts.IsCancellationRequested &&
+                _webSocket.State != WebSocketState.Open)
+            {
+                Logger.L.Error("The connection is closed.");
+                Disconnected?.Invoke();
+            }
         }
     }
 

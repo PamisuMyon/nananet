@@ -1,0 +1,13 @@
+﻿{
+  "MongoDbUri": "mongodb://localhost/nana",
+  "MongoDbName": "nana",
+  "ClientConfig": {
+    "AppKey": "",
+    "AppVersion": "2.0.0",
+    "BuildNumber": 851,
+    "Token": "",
+    "DeviceId": "",
+    "DummyCookies": {
+    }
+  }
+}

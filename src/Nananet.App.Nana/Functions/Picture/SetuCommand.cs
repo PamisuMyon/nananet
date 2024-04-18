@@ -22,7 +22,7 @@ public class SetuCommand : Command
     {
         DownloadingHint = "正在检索猫猫数据库，请博士耐心等待...",
         DownloadErrorHint = "图片被猫猫吞噬了，请博士稍后再试。",
-        SendErrorHint = "图片被企鹅吞噬了，请博士稍后再试。"
+        SendErrorHint = "图片被狗狗吞噬了，请博士稍后再试。"
     };
 
     protected readonly Spam _temporarySpam = new(0, 1, 2000);

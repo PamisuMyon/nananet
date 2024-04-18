@@ -60,8 +60,8 @@ public class RestHandler
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("Response Body:");
-                Console.WriteLine(responseBody);
+                // Console.WriteLine("Response Body:");
+                // Console.WriteLine(responseBody);
                 if (!string.IsNullOrEmpty(responseBody))
                 {
                     var result = FromJson<T>(responseBody);
