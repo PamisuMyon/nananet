@@ -1,5 +1,5 @@
 ﻿using System.Text;
-
+using COSXML.Model.Bucket;
 using Nananet.Core.Utils;
 using Nananet.Sdk.Fanbook.Api;
 using Nananet.Sdk.Fanbook.Models;
@@ -24,6 +24,7 @@ public class FanbookClient
     private long _actionSeq = 0;
     
     public ClientRuntimeData RuntimeData { get; private set; }
+    public UserApi UserApi { get; private set; }
     public MessageApi MessageApi { get; private set; }
     public FileApi FileApi { get; private set; }
     
@@ -41,6 +42,7 @@ public class FanbookClient
         _wsHandler.MessageReceived += OnMessageReceived;
 
         _restHandler = new RestHandler(RuntimeData);
+        UserApi = new UserApi(_restHandler);
         MessageApi = new MessageApi(_restHandler);
         FileApi = new FileApi(_restHandler);
     }
@@ -49,12 +51,12 @@ public class FanbookClient
     {
         RuntimeData.CurrentGuildId = guildId;
         RuntimeData.CurrentChannelId = channelId;
-        if (_isReady)
-        {
-            await RecordCurrentChannelLastMessageAsync();
-            if (!string.IsNullOrEmpty(RuntimeData.CurrentChannelLastMessageId))
-                await ReadMessageAsync(RuntimeData.CurrentGuildId, RuntimeData.CurrentChannelId, RuntimeData.CurrentChannelLastMessageId);
-        }
+        // if (_isReady)
+        // {
+        //     await RecordCurrentChannelLastMessageAsync();
+        //     if (!string.IsNullOrEmpty(RuntimeData.CurrentChannelLastMessageId))
+        //         await ReadMessageAsync(RuntimeData.CurrentGuildId, RuntimeData.CurrentChannelId, RuntimeData.CurrentChannelLastMessageId);
+        // }
     }
 
     private async Task RecordCurrentChannelLastMessageAsync()
@@ -241,28 +243,31 @@ public class FanbookClient
         await _wsHandler.SendAsync(resJo.ToString(Formatting.None));
     }
 
-    public async Task SendTextMessageAsync(string guildId, string channelId, string text)
+    public async Task<string?> SendTextMessageAsync(string guildId, string channelId, string text)
     {
-        if (!_isReady) return;
+        if (!_isReady) return null;
         var textContent = new TextContent(text);
         var contentJson = _restHandler.ToJson(textContent);
-        await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text);
+        var result = await MessageApi.ClientSendAsync(guildId, channelId, contentJson, text);
+        if (result?.Status == true)
+            return result.Data?.MessageId;
+        return null;
     }
 
-    public async Task SendImageMessageAsync(string guildId, string channelId, string filePath)
+    public async Task<string?> SendLocalImageMessageAsync(string guildId, string channelId, string filePath)
     {
-        if (!_isReady) return;
+        if (!_isReady) return null;
         if (!File.Exists(filePath))
         {
             Logger.L.Error("SendImageMessageAsync file not exists.");
-            return;
+            return null;
         }
         
         var imageUrl = await FileApi.UploadImageAsync(filePath);
         if (string.IsNullOrEmpty(imageUrl))
         {
             Logger.L.Error("SendImageMessageAsync upload failed.");
-            return;
+            return null;
         }
         
         using var image = Image.Load(filePath);
@@ -278,7 +283,35 @@ public class FanbookClient
             LocalIdentify = Path.GetFileName(filePath)
         };
         var contentJson = _restHandler.ToJson(imageContent);
-        await MessageApi.ClientSendAsync(guildId, channelId, contentJson, "[图片]");
+        var result = await MessageApi.ClientSendAsync(guildId, channelId, contentJson, "[图片]");
+        if (result?.Status == true)
+            return result.Data?.MessageId;
+        return null;
+    }
+
+    public async Task<string?> SendServerImageMessageAsync(string guildId, string channelId, string fileUrl)
+    {
+        if (!_isReady) return null;
+        var imageContent = new ImageContent
+        {
+            Url = fileUrl,
+            Width = 128,
+            Height = 128,
+            Size = 28184,
+            LocalFilePath = "",
+            LocalIdentify = ""
+        };
+        var contentJson = _restHandler.ToJson(imageContent);
+        var result = await MessageApi.ClientSendAsync(guildId, channelId, contentJson, "[图片]");
+        if (result?.Status == true)
+            return result.Data?.MessageId;
+        return null;
+    }
+
+    public Task<bool> RecallMessageAsync(string channelId, string messageId)
+    {
+        if (!_isReady) return Task.FromResult(false);
+        return MessageApi.RecallAsync(channelId, messageId);
     }
     
     public void Debug()

@@ -20,7 +20,7 @@ public abstract class SystemCommand : Command
     {
         // 目前仅有QQ频道可判断用户的角色
         if (CheckPlatformRole &&
-            bot.AppSettings.Platform != Constants.PlatfromQQGuild)
+            bot.AppSettings.Platform != Constants.PlatformQQGuild)
             CheckPlatformRole = false;
         return base.Init(bot);
     }

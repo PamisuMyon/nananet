@@ -15,6 +15,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Nananet.Adapter.Fanbook\Nananet.Adapter.Fanbook.csproj" />
+        <ProjectReference Include="..\Nananet.App.Nana\Nananet.App.Nana.csproj" />
 <!--        <ProjectReference Include="..\Nananet.App.Nana\Nananet.App.Nana.csproj" />-->
     </ItemGroup>
 

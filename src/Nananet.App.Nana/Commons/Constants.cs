@@ -2,9 +2,11 @@
 
 public static class Constants
 {
-    public const string PlatfromNone = "none";
-    public const string PlatfromKook = "kook";
-    public const string PlatfromQQGuild = "qqGuild";
+    public const string PlatformNone = "none";
+    public const string PlatformKook = "kook";
+    public const string PlatformQQGuild = "qqGuild";
+    public const string PlatformFanbook = "fanbook";
+    
     
     // https://bot.q.qq.com/wiki/develop/api/openapi/guild/role_model.html#DefaultRoles
     public const string QQGuildRoleAll = "1";

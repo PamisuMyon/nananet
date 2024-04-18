@@ -95,7 +95,7 @@ public class SetuCommand : Command
             {
                 string? imgMsgId;
                 // 对于文字和图片可同时存在的平台，图片与作品信息合为一条消息发送
-                if (bot.AppSettings.Platform == Constants.PlatfromNone) // hard-code
+                if (bot.AppSettings.Platform == Constants.PlatformNone) // TODO hard-code
                     imgMsgId = await bot.SendMessage(new OutgoingMessage
                     {
                         Content = illust.Value.Info,
@@ -118,9 +118,9 @@ public class SetuCommand : Command
             // 发送作品信息
             if (error.NullOrEmpty()
                 && illust.Value.Info.NotNullNorEmpty()
-                && bot.AppSettings.Platform != Constants.PlatfromNone) // hard-code
+                && bot.AppSettings.Platform != Constants.PlatformNone) // TODO hard-code
             {
-                await Task.Delay(100);
+                await Task.Delay(500);
                 await bot.SendTextMessage(input.ChannelId, illust.Value.Info, input.IsPersonal, input.MessageId);
                 await ActionLog.Log(Name, bot, input, illust.Value.Info);
             }
@@ -129,7 +129,7 @@ public class SetuCommand : Command
         await bot.DeleteMessage(input.ChannelId, hintMsgId!);
         if (error.NotNullNorEmpty())
         {
-            await Task.Delay(100);
+            await Task.Delay(500);
             await bot.ReplyTextMessage(input, error!);
             await ActionLog.Log(Name, bot, input, error);
         }

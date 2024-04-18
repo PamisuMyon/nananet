@@ -78,7 +78,7 @@ public static class Converter
     {
         return new User
         {
-            // Id = input.Id,
+            Id = input.UserId!,
             UserName = input.Username,
             NickName = input.Nickname,
             Avatar = input.Avatar,
