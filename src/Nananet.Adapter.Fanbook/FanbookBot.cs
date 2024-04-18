@@ -20,7 +20,6 @@ public class FanbookBot : IBot
     protected Regex CommandRegex = new("^[\\.。/]", RegexOptions.Multiline);
     protected Defender Defender;
     protected User Me;
-    protected Queue<Message> MessageQueue = new();
 
     protected FanbookClient Client;
     
@@ -61,7 +60,6 @@ public class FanbookBot : IBot
 
             await Refresh();
             Client.MessageReceived += OnMessageReceived;
-            _ = Task.Run(ProcessMessageQueue);
         };
         
         // TODO hard-code
@@ -80,22 +78,11 @@ public class FanbookBot : IBot
         if (msg == null) return;
         
         Logger.L.Info($"OnMessageReceived: {msg}");
-        // 考虑到目前为用户api，操作频率不能太高，用队列控制下
-        MessageQueue.Enqueue(msg);
-        // Task.Run(async () => await ProcessMessage(msg));
-    }
-
-    private async Task ProcessMessageQueue()
-    {
-        while (true)
+        Task.Run(async () =>
         {
-            if (MessageQueue.Count > 0)
-            {
-                var msg = MessageQueue.Dequeue();
-                await ProcessMessage(msg);
-            }
-            await Task.Delay(1000);
-        }
+            await Task.Delay(1000);     // 考虑到目前为用户api，控制下操作频率
+            await ProcessMessage(msg);
+        });
     }
     
     protected async Task ProcessMessage(Message input)
@@ -232,11 +219,13 @@ public class FanbookBot : IBot
 
     public async Task<bool> DeleteMessage(string? targetId, string messageId)
     {
-        if (targetId == null)
-            return false;
-        // TODO 临时 撤回消息速度太快会导致网页显示错误，先写死延时
-        await Task.Delay(2000);
-        return await Client.RecallMessageAsync(targetId, messageId);
+        // TODO 临时 有点影响美观，先不撤回消息了，但不应该在这里控制，之后再调整
+        return false;
+        // if (targetId == null)
+        //     return false;
+        // // TODO 临时 撤回消息速度太快会导致网页显示错误，先写死延时
+        // await Task.Delay(2000);
+        // return await Client.RecallMessageAsync(targetId, messageId);
     }
     
 }

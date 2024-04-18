@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Security;
+using System.Text.RegularExpressions;
 using Nananet.App.Nana.Commons;
 using Nananet.App.Nana.Models;
 using Nananet.Core;
@@ -74,6 +75,8 @@ public class SetuCommand : Command
         options.ReturnTotalSample = true;
         options.ClientId = input.GuildId;
         options.ShouldRecord = true;
+        // hard-code Fanbook吞得比较厉害，不加标签了
+        options.AppendTagsInfo = bot.AppSettings.Platform != Constants.PlatformFanbook;
 
 
         if (!string.IsNullOrEmpty(m.Groups[4].Value))

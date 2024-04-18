@@ -26,6 +26,8 @@ public class PxKore
         public bool IsRandomSample { get; set; }
         [JsonIgnore]
         public bool AppendTotalSampleInfo { get; set; }
+        [JsonIgnore]
+        public bool AppendTagsInfo { get; set; }
     }
     
     public struct IllustResult
@@ -90,28 +92,31 @@ public class PxKore
                 else
                     info.Append("    -🎲-");
             }
-            
-            // 补充热门标签信息
-            if (data["tags"] is JArray)
-            {
-                var trendingTagsConfig = await MiscConfig.FindByName<Dictionary<string, string[]>>("trendingTags");
-                if (trendingTagsConfig != null 
-                    && trendingTagsConfig.TryGetValue("tags", out var trendingTags))
-                {
-                    var infoTags = new List<string>();
-                    foreach (var it in data["tags"]!)
-                    {
-                        if (trendingTags.Contains(it.ToString()))
-                        {
-                            infoTags.Add(it.ToString());
-                        }
-                    }
-                    infoTags.Shuffle();
 
-                    if (infoTags.Count > 0)
+            if (opt.AppendTagsInfo)
+            {
+                // 补充热门标签信息
+                if (data["tags"] is JArray)
+                {
+                    var trendingTagsConfig = await MiscConfig.FindByName<Dictionary<string, string[]>>("trendingTags");
+                    if (trendingTagsConfig != null 
+                        && trendingTagsConfig.TryGetValue("tags", out var trendingTags))
                     {
-                        info.Append("\n🏷️ ")
-                            .AppendJoin(" ", infoTags.Take(10));
+                        var infoTags = new List<string>();
+                        foreach (var it in data["tags"]!)
+                        {
+                            if (trendingTags.Contains(it.ToString()))
+                            {
+                                infoTags.Add(it.ToString());
+                            }
+                        }
+                        infoTags.Shuffle();
+
+                        if (infoTags.Count > 0)
+                        {
+                            info.Append("\n🏷️ ")
+                                .AppendJoin(" ", infoTags.Take(10));
+                        }
                     }
                 }
             }
