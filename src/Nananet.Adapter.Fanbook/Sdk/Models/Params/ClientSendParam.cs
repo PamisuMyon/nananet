@@ -1,6 +1,6 @@
 ﻿namespace Nananet.Adapter.Fanbook.Params;
 
-public class ClientSend
+public class ClientSendParam
 {
     public string ChannelId { get; set; } = null!;
     public string GuildId { get; set; } = null!;

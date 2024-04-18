@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Nananet.Adapter.Fanbook;
 using Nananet.Adapter.Fanbook.Models;
 using Nananet.Adapter.Fanbook.Sdk.Models;

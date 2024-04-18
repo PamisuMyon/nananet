@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using Nananet.Adapter.Fanbook.Utils;
 
 namespace Nananet.Adapter.Fanbook.Models;
 
-public class SignatureParams
+public class Signature
 {
     private const string VR = "dJcPo1dQHeMgDn1s8MQr"; // TODO 可能会变
     
@@ -17,7 +18,7 @@ public class SignatureParams
     
     private string? _signature;
 
-    public SignatureParams(string appKey, string authorization, string nonce, string requestBody, string platform = "web")
+    public Signature(string appKey, string authorization, string nonce, string requestBody, string platform = "web")
     {
         AppKey = appKey;
         Authorization = authorization;
@@ -38,20 +39,8 @@ public class SignatureParams
         var t = string.Join("&", props);
         t = $"{t}&{VR}";
         t = Uri.EscapeDataString(t);
-        using (var md5 = MD5.Create())
-        {
-            var inputBytes = Encoding.UTF8.GetBytes(t);
-            var hashBytes = md5.ComputeHash(inputBytes);
-
-            var sb = new StringBuilder();
-            for (var i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("x2"));
-            }
-
-            _signature = sb.ToString();
-        }
-
+        _signature = SdkUtil.GetMd5(Encoding.UTF8.GetBytes(t));
+        
         return _signature;
     }
     
