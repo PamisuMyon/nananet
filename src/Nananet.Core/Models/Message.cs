@@ -15,7 +15,7 @@ public class Message
     /// <summary>
     /// 群/服务器/主频道ID
     /// </summary>
-    public string GuildId { get; set; } = null!;
+    public string? GuildId { get; set; }
     
     /// <summary>
     /// 子频道ID

@@ -73,7 +73,10 @@ public class SetuCommand : Command
         options.IsRandomSample = false;
         options.AppendTotalSampleInfo = true;
         options.ReturnTotalSample = true;
-        options.ClientId = input.GuildId;
+        if (input.GuildId == null)
+            options.ClientId = input.AuthorId;
+        else
+            options.ClientId = input.GuildId;
         options.ShouldRecord = true;
         // hard-code Fanbook吞得比较厉害，不加标签了
         options.AppendTagsInfo = bot.AppSettings.Platform != Constants.PlatformFanbook;

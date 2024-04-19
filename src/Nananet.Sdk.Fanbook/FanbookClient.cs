@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using COSXML.Model.Bucket;
 using Nananet.Core.Utils;
 using Nananet.Sdk.Fanbook.Api;
 using Nananet.Sdk.Fanbook.Models;
@@ -24,6 +23,7 @@ public class FanbookClient
     private bool _isReady;
     private long _actionSeq = 0;
     private Dictionary<string, string> _channelGuildMap = new();
+    private List<string> _directChatId = new();
     
     public ClientRuntimeData RuntimeData { get; private set; }
     public UserApi UserApi { get; private set; }
@@ -95,13 +95,12 @@ public class FanbookClient
         }
     }
 
-    public async Task<string?> GetGuildIdByChannelIdAsync(string channelId)
+    public string? GetGuildIdByChannelId(string channelId)
     {
         if (_channelGuildMap.TryGetValue(channelId, out var guildId))
             return guildId;
-        await RefreshGuildInfoAsync();
-        if (_channelGuildMap.TryGetValue(channelId, out guildId))
-            return guildId;
+        else if (_directChatId.Contains(channelId))
+            return "0";
         return null;
     } 
 
@@ -266,6 +265,7 @@ public class FanbookClient
                             message.ContentType = EContentType.Text;
                             message.TextContent = _restHandler.FromJson<TextContent>(message.Content);
                         }
+                        // TODO 增加图片消息解析
                     }
                 }
 
@@ -274,6 +274,12 @@ public class FanbookClient
                 {
                     await ReadMessageAsync(message.GuildId, message.ChannelId, message.MessageId);
                 }
+
+                if (message.GuildId != null)
+                    _channelGuildMap.TryAdd(message.ChannelId, message.GuildId);
+                else if (!_directChatId.Contains(message.ChannelId))
+                    _directChatId.Add(message.ChannelId);
+                
                 MessageReceived?.Invoke(message);
             }
         }
@@ -283,7 +289,7 @@ public class FanbookClient
         }
     }
     
-    public async Task ReadMessageAsync(string guildId, string channelId, string messageId)
+    public async Task ReadMessageAsync(string? guildId, string channelId, string messageId)
     {
         var resJo = new JObject();
         resJo["action"] = "upLastRead";
@@ -298,7 +304,7 @@ public class FanbookClient
     public async Task<string?> SendTextMessageAsync(string channelId, string text, string? quoteL1 = null, string? quoteL2 = null)
     {
         if (!_isReady) return null;
-        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        var guildId = GetGuildIdByChannelId(channelId);
         if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");
@@ -315,7 +321,7 @@ public class FanbookClient
     public async Task<string?> SendLocalImageMessageAsync(string channelId, string filePath)
     {
         if (!_isReady) return null;
-        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        var guildId = GetGuildIdByChannelId(channelId);
         if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");
@@ -357,7 +363,7 @@ public class FanbookClient
     public async Task<string?> SendServerImageMessageAsync(string channelId, string fileUrl)
     {
         if (!_isReady) return null;
-        var guildId = await GetGuildIdByChannelIdAsync(channelId);
+        var guildId = GetGuildIdByChannelId(channelId);
         if (guildId == null)
         {
             Logger.L.Error($"Guild of channel {channelId} not found.");

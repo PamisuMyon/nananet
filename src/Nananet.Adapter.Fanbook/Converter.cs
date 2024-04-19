@@ -22,7 +22,8 @@ public static class Converter
         
         var msg = new Message();
         msg.MessageId = input.MessageId;
-        msg.GuildId = input.GuildId;
+        msg.GuildId = input.GuildId!;
+        msg.IsPersonal = input.GuildId == null;
         msg.ChannelId = input.ChannelId;
         msg.AuthorId = input.UserId;
         msg.Author = FromUser(input.Author);

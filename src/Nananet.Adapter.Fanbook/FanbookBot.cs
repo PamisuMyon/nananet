@@ -91,12 +91,13 @@ public class FanbookBot : IBot
         
         var isTriggered = false;
         var isChannelCommand = false;
-        // var isReplyMe = IsReplyMe(input); // TODO
+        // var isReplyMe = IsReplyMe(input);
         var isReplyMe = false;
         
         if (input.IsPersonal)
         {
-            isTriggered = true;
+            // isTriggered = true;
+            return;     // TODO 已经支持私聊，但先不开启
             Logger.L.Info($"Direct message received: {input}");
         }
         else

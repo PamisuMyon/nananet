@@ -28,7 +28,7 @@ public class MessageApi : BaseApi
         var url = $"message/clientSend/{guildId}/{channelId}";
         var clientSend = new ClientSendParam()
         {
-            GuildId = guildId,
+            GuildId = guildId == "0"? null! : guildId,
             ChannelId = channelId,
             Content = contentJson,
             Desc = desc,

@@ -28,7 +28,7 @@ public class ActionLog : Entity, ICreatedOn
             UserId = input.AuthorId,
             NickName = input.Author.NickName,
             ChannelId = input.ChannelId,
-            GuildId = input.GuildId,
+            GuildId = input.GuildId!,
             IsPersonal = input.IsPersonal
         };
         if (input.HasContent())

@@ -13,7 +13,7 @@ public class Message
     public string MessageId { get; set; } = null!;
     public string? QuoteL1 { get; set; }
     public string? QuoteL2 { get; set; }
-    public string GuildId { get; set; } = null!;
+    public string? GuildId { get; set; }
     public int ChannelType { get; set; }
     public int Status { get; set; }
     public string Nonce { get; set; } = null!;

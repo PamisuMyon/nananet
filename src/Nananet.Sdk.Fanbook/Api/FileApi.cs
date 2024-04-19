@@ -7,6 +7,7 @@ using Nananet.Sdk.Fanbook.Models;
 using Nananet.Sdk.Fanbook.Models.Results;
 using Nananet.Sdk.Fanbook.Utils;
 using Nananet.Core.Utils;
+using NLog.Fluent;
 
 namespace Nananet.Sdk.Fanbook.Api;
 
@@ -100,7 +101,7 @@ public class FileApi : BaseApi
         }
         
         var cosPath = await GetImageCosPathAsync(_cosTempKey!, filePath);
-        Console.WriteLine($"Cos path: {cosPath}");
+        // Console.WriteLine($"Cos path: {cosPath}");
         return await UploadFileAsync(_cosTempKey!, _cosXmlServer!, cosPath, filePath);
     }
     
@@ -122,12 +123,12 @@ public class FileApi : BaseApi
 
         uploadTask.progressCallback = delegate (long completed, long total)
         {
-            Console.WriteLine("progress = {0:##.##}%", completed * 100.0 / total);
+            Logger.L.Debug(string.Format("progress = {0:##.##}%", completed * 100.0 / total));
         };
 
         try {
             var result = await transferManager.UploadAsync(uploadTask);
-            Console.WriteLine(result.GetResultInfo());
+            Logger.L.Debug(result.GetResultInfo());
             if (result.IsSuccessful())
             {
                 return $"{cosTempKey.Host}/{cosPath}";
