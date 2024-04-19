@@ -24,8 +24,8 @@ var options = new InitOptions
     Commands = new List<Command>
     {
         // new GachaCommand(),
-        new FakeGachaCommand(),
-        new CatBoyCommand(),
+        // new FakeGachaCommand(),
+        // new CatBoyCommand(),
         new KittyCommand(),
         new DogeCommand(),
         new QuackCommand(),
@@ -34,13 +34,13 @@ var options = new InitOptions
         // new RecruitCommand(),
         new DiceCommand(),
         new HelpCommand("fanbookHelp"),
-        new AkOperatorEvolveCommand(),
-        new AkOperatorSkillMasteryCommand(),
-        new AkBirthdayOperatorCommand(),
-        new AkOperatorBirthdayCommand(),
-        new AkFuzzyCommand(),
+        // new AkOperatorEvolveCommand(),
+        // new AkOperatorSkillMasteryCommand(),
+        // new AkBirthdayOperatorCommand(),
+        // new AkOperatorBirthdayCommand(),
+        // new AkFuzzyCommand(),
         new RefreshCacheCommand(),
-        new AlarmSettingsCommand(),
+        // new AlarmSettingsCommand(),
         new ChatCommand(),
     }
 };

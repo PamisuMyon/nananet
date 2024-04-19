@@ -70,10 +70,6 @@ public class FanbookBot : IBot
 
     private void OnMessageReceived(Sdk.Fanbook.Models.Message input)
     {
-        // TODO TEMP
-        if (input.GuildId != "616200178189582337")
-            return;
-        
         var msg = Converter.FromMessage(input);
         if (msg == null) return;
         
